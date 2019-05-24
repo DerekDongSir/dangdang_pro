@@ -10,6 +10,8 @@ from bookapp.models import BookInfo,TDelivery,TOrder,GoodsList,TUser,BookInfo
 from orderapp.cart import Cart, Item
 from django.http import JsonResponse
 
+from orderapp.models import City
+
 
 def add_to_cart(request):
     cart = request.session.get('cart')
@@ -113,7 +115,9 @@ def indent(request): #渲染订单确认页面，填写地址信息等
         return redirect('orderapp:cart_page')
     user_id = request.session.get('user_id')
     locations = TDelivery.objects.filter(user=user_id)
+    provinces = City.objects.filter(type=1) #获得省份
     data = {
+        'province': provinces,
         'locations':locations,
         'total_cost': ('%.1f' % cart.total_cost),
         'items': cart.cart_items.values() if cart else None,
@@ -138,7 +142,10 @@ def get_delivery_info(request):
 
 def check_address(request):
     '''从前端获得详细地址，查询数据库是否该地址已经存在'''
-    address = request.GET.get('address')
+    province = request.GET.get('province')+'/'
+    city = request.GET.get('city')+'/'
+    town = request.GET.get('town')+'/'
+    address = province+city+town+request.GET.get('address')
     return HttpResponse('no') if TDelivery.objects.filter(address=address) else HttpResponse('ok')
 
 
@@ -155,6 +162,30 @@ def get_location_info(request):
 
         return JsonResponse(list(locations),safe=False,json_dumps_params={'default':my_default})
     return JsonResponse(locations,safe=False) #此时传递的是空列表
+
+
+def get_city(request):
+    """
+    通过前端ajax请求发送回来的省份id查询其下的城市，转换成 json格式响应到前端
+    """
+    pro_id = int(request.GET.get('pro_id'))
+    cities = list(City.objects.filter(pid=pro_id))
+    def my_default(city):
+        if isinstance(city,City):
+            return {'id':city.id,'cityname':city.cityname}
+    return JsonResponse(cities,safe=False,json_dumps_params={'default':my_default})
+
+
+def get_town(request):
+    """
+    通过前端 ajax请求发送过来的城市id查询其下的县区，转换成json返回到前端
+    """
+    city_id = int(request.GET.get('city_id'))
+    towns = list(City.objects.filter(pid=city_id))
+    def my_default(town):
+        if isinstance(town,City):
+            return {'id':town.id,'townname':town.cityname}
+    return JsonResponse(towns,safe=False,json_dumps_params={'default':my_default})
 
 
 def generate_order(request,delivery_id, user_id):
@@ -191,7 +222,10 @@ def location_info(request):
             if request.method == "POST":
                 delivery_id = str(uuid.uuid4()) # 生成地址主键
                 receiver_name = request.POST.get('receiver_name')
-                address = request.POST.get('address')
+                province = request.POST.get('province')+'/'
+                city = request.POST.get("city")+'/'
+                town = request.POST.get("town")+'/'
+                address = province+city+town+request.POST.get('address') #将地址进行拼接
                 zipt_code = request.POST.get('zip_code')
                 telephone = request.POST.get('telephone')
                 phone = request.POST.get('phone')

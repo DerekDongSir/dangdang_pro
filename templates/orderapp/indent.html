@@ -40,10 +40,26 @@
             if(!$('#txt_name').val())
             {   $("#cue_name").text('姓名不能为空'); $("#cue_name").css('color','red');}
         else{ name_flag = true; $("#cue_name").html("<img src=\"/static/pics/right_3.jpg\" width=\"20px\">");     }}
+
         function check_address() {
-             if(!$('#txt_address').val())
-            {   $("#cue_address").text('地址不能为空'); $("#cue_address").css('color','red');}
-        else{address_flag = true;  $("#cue_address").html("<img src=\"/static/pics/right_3.jpg\" width=\"20px\">")     }}
+            {#只需要判断县是否有合法值即可，因为只有省与城市均合法时，县才能勾选#}
+            if ($("#town_id").val() === '县') {
+                $("#cue_address").text('请先选择收获地区');
+                $("#cue_address").css('color', 'red');
+                $("#txt_address").val(null);
+            } else {
+                $("#cue_address").text('请填写收获地址');
+                $("#cue_address").css('color', 'black');
+                if (!$('#txt_address').val()) {
+                    $("#cue_address").text('地址不能为空');
+                    $("#cue_address").css('color', 'red');
+                }
+                else {
+                    address_flag = true;
+                    $("#cue_address").html("<img src=\"/static/pics/right_3.jpg\" width=\"20px\">")
+                }
+            }
+        }
         function check_zip() {
             if(!$('#txt_zipcode').val())
             {   $("#cue_zip_code").text('邮编不能为空'); $("#cue_zip_code").css('color','red');}
@@ -60,7 +76,7 @@
                         $.ajax({
                             type:'GET',
                             url:"{% url 'orderapp:check_address' %}",
-                            data:'address='+$('#txt_address').val(),
+                            data:'province='+$("#pro_id").val()+'&city='+$("#city_id").val()+"&town="+$("#town_id").val()+'&address='+$('#txt_address').val(),
                             success:function (res) {
                                 if(res === 'ok'){
                                 $("#my_form").submit();
@@ -108,7 +124,42 @@
                 });
             }
         }
-
+             function get_city(id){
+                {#省份发生变动，将市与县区的信息同时归为初始状态#}
+               $("#city_id").html("<option value=\"城市\">城市</option>");
+               $("#town_id").html("<option value=\"县\">县/区</option>");
+              var pro_id = $("#"+id).attr('id');
+              if(pro_id === 'ProV'){  return;  }
+              else{
+                  $.ajax({
+                  type:'get',
+                  url:"{% url 'orderapp:get_city' %}",
+                  data:'pro_id='+pro_id,
+                  success:function (cities){
+                       for(var i=0;i<cities.length;i++){
+                      $("#city_id").append('<option id="'+cities[i]['id']+'" value="'+cities[i]["cityname"]+'" >'+cities[i]["cityname"]+'</option>')
+                      }
+                  }
+              })
+              }
+          }
+            function get_town(id) {
+             $("#town_id").html("<option value=\"县\">县/区</option>");
+              var city_id = $("#"+id).attr('id');
+              if(city_id ==="CitY"){    return; }
+              else{
+                  $.ajax({
+                      type:'get',
+                      url:"{% url 'orderapp:get_town' %}",
+                      data:'city_id='+city_id,
+                      success:function (towns){
+                          for(var i=0;i<towns.length;i++){
+                              $("#town_id").append('<option id="'+towns[i]['id']+'" value="'+towns[i]["townname"]+'" >'+towns[i]["townname"]+'</option>')
+                          }
+                      }
+                  })
+              }
+          }
 
     </script>
 </head>
@@ -170,15 +221,20 @@
                 <span id="cue_name" class="hint new_tip" style="display: block;" >请填写收货人姓名</span>
 
             </li>
-            <li style="display: none">
-                <label><strong>*</strong>收货地区：</label> 
-                <select id="country_id" name="country_id" onfocus="check_focus('spn_country_province_city');" onblur="check_country_province_city();" onchange="set_province(this.options[this.selectedIndex].value);" style="display: block;"><option value="9000">中国</option><option value="16767">阿尔及利亚</option><option value="10707">巴西</option><option value="16868">白俄罗斯</option><option value="16969">保加利亚</option><option value="13535">比利时</option><option value="15656">波多黎各</option><option value="14949">波兰</option><option value="17272">玻利维亚</option><option value="14444">丹麦</option><option value="10505">德国</option><option value="15353">俄罗斯</option><option value="10404">法国</option><option value="12222">菲律宾</option><option value="12323">芬兰</option><option value="17474">古巴</option><option value="12424">关岛</option><option value="10808">韩国</option><option value="12121">荷兰</option><option value="11010">加拿大</option><option value="15151">柬埔寨</option><option value="11111">捷克</option><option value="17373">喀麦隆</option><option value="14848">科威特</option><option value="15858">老挝</option><option value="16262">黎嫩</option><option value="15959">列支敦士登</option><option value="16060">卢森堡</option><option value="17070">卢旺达</option><option value="13030">罗马尼亚</option><option value="15555">马尔代夫</option><option value="13636">马来西亚</option><option value="10101">美国</option><option value="14545">蒙古</option><option value="17171">孟加拉</option><option value="11818">秘鲁</option><option value="11212">墨西哥</option><option value="13232">南非</option><option value="10303">日本</option><option value="11414">瑞典</option><option value="13737">瑞士</option><option value="13333">斯里兰卡</option><option value="13434">泰国</option><option value="11515">西班牙</option><option value="14343">希腊</option><option value="13131">新加坡</option><option value="12727">新西兰</option><option value="14141">匈牙利</option><option value="11616">意大利</option><option value="10606">印度</option><option value="10202">英国</option><option value="14242">越南<option value="19999">其他国家或地区</option></select>
-                <select id="province_id" name="province_id" onfocus="check_focus('spn_country_province_city');" onblur="check_country_province_city();" onchange="set_city(this.options[this.selectedIndex].value);" style="display: block;"><option value="0">--请选择--</option><option value="111">北京</option><option value="112">天津</option><option value="113">河北</option><option value="114">山西</option><option value="115">内蒙古</option><option value="121">辽宁</option><option value="122">吉林</option><option value="123">黑龙江</option><option value="131">上海</option><option value="132">江苏</option><option value="133">浙江</option><option value="134">安徽</option><option value="135">福建</option><option value="136">江西</option><option value="137">山东</option><option value="141">河南</option><option value="142">湖北</option><option value="143">湖南</option><option value="144">广东</option><option value="145">广西</option><option value="146">海南</option><option value="150">重庆</option><option value="151">四川</option><option value="152">贵州</option><option value="153">云南</option><option value="154">西藏</option><option value="161">陕西</option><option value="162">甘肃</option><option value="163">青海</option><option value="164">宁夏</option><option value="165">新疆</option><option value="171">台湾</option><option value="172">香港</option><option value="173">澳门</option><option value="33">其他省份</option></select>
-                <select id="opt_city" name="city"><option value=0>请选择</option><option value="Nanjing">南京市</option></select>
-                <select id="opt_town" name="town" ><option value=0>请选择</option>
-                    <option value="Xuanwu">玄武区</option></select>
-                <select id="opt_quarter" name="quarter" ><option value="0">请选择</option>
-                    <option value="Xiaolingwei">孝陵卫</option></select>
+            <li>
+                <label><strong>*</strong>收货地区：</label>
+                <select name="province" id="pro_id" onchange="get_city(this.options[this.selectedIndex].id)">
+                    <option value="省" id="ProV">省份</option>
+                    {% for pro in province %}
+                        <option  id="{{ pro.id }}" value="{{ pro.cityname }}">{{pro.cityname }}</option>
+                    {% endfor %}
+                </select>
+                <select name="city" id="city_id" onchange="get_town(this.options[this.selectedIndex].id)">
+                    <option value="市" id="CitY">城市</option>
+                </select>
+                <select name="town" id="town_id" >
+                    <option value="县">县区</option>
+                </select>
             </li>
             <li><label><strong>*</strong>详细地址：</label>
                 <input type="text" id="txt_address" name="address" onblur="check_address()">
