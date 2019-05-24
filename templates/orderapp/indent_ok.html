@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>当当网</title>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<link href="/static/css/shopping_cart_new.css" rel="stylesheet" type="text/css">
+<link href="/static/css/footer_150526.css" rel="stylesheet" type="text/css" />
+    <script>
+        function logout() {
+            $.ajax({
+                type:'GET',
+                url:"{% url 'userapp:logout' %}",
+                success:function (res) {
+                    if(res === 'ok'){
+                        document.getElementById('nickname').innerHTML =" <span class=\"hi hi_none\">欢迎光临当当，请</span><a href=\"{% url 'userapp:login' %}?current_id=1\" class=\"login_link\">登录</a><a href=\"{% url 'userapp:register' %}?current_id=1\">免费注册</a>";
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body style="padding-bottom:82px">
+<link href="/static/css/header_960_150611.css" rel="stylesheet" type="text/css">
+<script src="/static/js/pagetop2015_0827.js" charset="gb2312" type="text/javascript"></script>
+<div id="hd">
+<div id="tools">
+<div class="tools">
+    <div class="ddnewhead_operate">
+        <div class="ddnewhead_welcome">
+            <span id="nickname">
+                 <span class="hi hi_none">欢迎<span> </span>{{ request.session.username }}！</span>
+                 <a href="javascript:void(0)" onclick="logout()">【退出登录】</a>
+            </span>
+        </div>
+        <div class="new_head_znx" id="znx_content" style="display:none;"></div>
+    </div>
+</div>
+</div>
+<div id="header_end"></div>
+</div>
+<form action="#" id="bootpagetopSearch" name="bootpagetopSearch" method="GET"></form>
+<script type="text/javascript" src="http://orderb.dangdang.com/queryunpaid?callback=Unpaid_Data"></script>
+		<div class="shoppingcart_wrapper" id="ad_cpt_11850">
+            <div>
+                <a href="javascript:void(0)" target="_blank" rel="nofollow">
+                    <img src="http://img62.ddimg.cn/2017/1/11/2017011111344969879.jpg">
+                </a>
+            </div>
+        </div>
+<div class="logo_line">
+    <div class="w960">
+        <div class="shopping_procedure02 shopping_procedure ">
+            <span>我的购物车</span><span>填写订单</span><span class="current">完成订单</span>
+        </div>
+        <div class="logo">
+            <a href="#"><img src="/static/images/bz_logo_car.jpg" alt=""></a>
+        </div>
+    </div>
+</div>
+<div class="checkout-wrap"><div class="indent_con">
+	<div class="order-box orderEnd-box">
+        <div class="orderEnd-box-top">
+            <div class="topbar"></div>
+            <h2><span id="spanOrderTip" class="text">感谢您提交订单，我们将及时为您处理！</span></h2>
+        </div>
+    <div class="orderEnd-box-cont">
+        <div id="NotPeerPayOrderList" class="pay-instead-order"></div>
+        <div class="pay-normal" id="order_list">
+            <div class="item-order">
+                <h3>订单：
+                <a href="{% url 'orderapp:indent' %}" target="_blank"><span class="number">{{ request.session.order_id }}</span></a>
+                </h3>
+    <div class="cont minh-40">
+        <table cellpadding="0" cellspacing="0">
+            <tbody>
+            <tr><td width="53"></td>
+                <td><span class="popup-Details spd">{{ num_of_items }}件商品<i class="icon icon-details"></i></span>
+{#                                <div class="popup-wrap popup-orderEnd-detail" style="right:-288px; top:12px;display:none;">#}
+{#                                    <div class="popup-cont">#}
+{#                                        <p>#}
+{#                                            <span class="span-w230">活着（余华经典著作）</span>#}
+{#                                            <strong class="color-orange">x1</strong>#}
+{#                                        </p>#}
+{#                                    </div>#}
+{#                                </div>#}
+                        <span>送给</span><span class="popup-Details spd">{{ delivery.receiver_name}}<i class="icon icon-details"></i>
+                            <div class="popup-wrap popup-orderEnd-detail" style="right:-288px; top:12px;">
+                                <div class="popup-cont">
+{#                                    <p>中国 北京 北京市 海淀区 西二旗铭科苑小区十一号楼二单元601 100019</p>#}
+                                    <p>{{ delivery.address }} {{ delivery.zipt_code }}</p>
+                                    <p>电话：{{ delivery.phone }}</p>
+                                </div>
+                            </div>
+                        </span>
+                        <span>配送方为</span><span>当当网</span>
+                    </td>
+                </tr>
+                <tr class="hackie6"><td>&nbsp;</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="order-price">
+            <p>支付金额：<span class="price-d">¥{{ total_cost }}.00</span></p>
+            <p class="p-hdfk">货到付款</p>
+        </div>
+        <div class="itemtext">
+            <span class="color-red">安全提醒：</span>
+            当当平台及销售商不会以订单异常、系统升级等理由，通过任何方式发送给您退款链接。请您谨防
+            <span class="color-red">钓鱼链接或诈骗电话</span>！
+        </div>
+    </div>
+</div>
+{#    <div class="item-order item-order-payment" id="error_prompt" style="display:none;"> <!-- 需要隐藏，添加hide类即可 -->#}
+{#        <div class="tips-pay">#}
+{#            <strong>温馨提示：</strong>#}
+{#            <span>如果您有网上支付、银行转账的订单，请您在#}
+{#                <strong class="color-red">24</strong>#}
+{#                小时内支付#}
+{#                <a href="#" id="a_myorder">查看订单</a>#}
+{#            </span>#}
+{#            <br>#}
+{#            <span style="padding-left:67px;">您还有<strong class="color-red">1</strong>张"待提交"订单#}
+{#                <a href="#" id="a_submitorder">继续提交</a>#}
+{#            </span>#}
+{#        </div>#}
+{#    </div>#}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="footer">
+<div class="footer">
+	<div class="footer_nav_box">
+		<div class="footer_copyright">
+            <span>Copyright (C) 当当网 2004-2014, All Rights Reserved</span>
+            <a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202001051000098"
+               target="_blank" class="footer_img" rel="nofollow">
+                <img src="http://img4.dangdang.com/bottom/validate.gif">
+            </a>
+            <span><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">京ICP证041189号</a></span>
+            <span>出版物经营许可证&nbsp;新出发京批字第直0673号</span>
+        </div>
+	</div>
+</div>
+</div>
+    <div class="foot_tip_ad">广告</div>
+    <style>
+        .foot_tip_ad { width:40px; height:40px; font:12px/40px "simsun"; text-align:center; color:#fff; background-color:#474747; position:fixed; right:0; bottom:10px;_position:absolute; _bottom:auto;_top:expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.offsetHeight-(parseInt(this.currentStyle.marginTop,10)||0)-(parseInt(this.currentStyle.marginBottom,10)||0)));}
+    </style>
+</body>
+</html>

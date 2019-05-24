@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>当当网</title>
+{#<link rel="shortcut icon" href="/static/images/favicon.ico?v=20160901" type="image/x-icon">#}
+<link href="/static/css/shopping_cart_new.css" rel="stylesheet" type="text/css">
+<link href="/static/css/footer_150526.css" rel="stylesheet" type="text/css" />
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+{#<script src="/static/js/jquery_cookie.js"></script>#}
+    <script>
+        function ajax_num_adjust(book_id,book_num) {
+            $.ajax({
+                    type:"GET",
+                    url:"{% url 'orderapp:book_num_adjust'%}",
+                    data:'book_id='+book_id+"&number="+book_num,
+                    success:function (res) {
+                        $("#shop_total_price").text('￥'+res['total_cost']);
+                        $("#payAmount").text('￥'+res['total_cost']);
+                        $("#totalFavor").text('￥'+res['saving_cost']);
+                    }
+                })
+        }
+        function ajax_add_to_cart(book_id,book_num) {
+              $.ajax({
+                    type:"GET",
+                    url:"{% url 'orderapp:add_to_cart'%}",
+                    data:'book_id='+book_id+"&number="+book_num,
+                    success:function (res) {
+                        $("#shop_total_price").text('￥'+res['total_cost']);
+                        $("#payAmount").text('￥'+res['total_cost']);
+                        $("#totalFavor").text('￥'+res['saving_cost']);
+                         $("#num_items").text(parseInt($("#num_items").text())+1);
+                    }
+                })
+        }
+        function ajax_remove_from_cart(book_id,state) {
+            {#state 为 '1'代表只是置为False,'2'代表直接删除#}
+             $.ajax({
+                    type:'GET',
+                    url:"{% url 'orderapp:remove_from_cart' %}",
+                    data:"book_id="+book_id+"&state="+state,
+                    success:function (res) {
+                    $("#shop_total_price").text('￥'+res['total_cost']);
+                    $("#payAmount").text('￥'+ res['total_cost']);
+                    $("#totalFavor").text('￥'+res['saving_cost']);
+                     $("#num_items").text($("#num_items").text()-1);
+                     }
+             })
+        }
+        function ajax_all_operation(method) {
+            $.ajax({
+                    type:'GET',
+                    url:"{% url 'orderapp:all_operation' %}",
+                    data:"method="+method,
+                    success:function (res) {
+                    $("#shop_total_price").text('￥'+res['total_cost']);
+                    $("#payAmount").text('￥'+ res['total_cost']);
+                    $("#totalFavor").text('￥'+res['saving_cost']);
+                    $("#num_items").text(res['num_items']);
+                     }
+             })
+        }
+
+         function logout() {
+            $.ajax({
+                type:'GET',
+                url:"{% url 'userapp:logout' %}",
+                success:function (res) {
+                    if(res === 'ok'){
+                        document.getElementById('nickname').innerHTML =" <span class=\"hi hi_none\">欢迎光临当当，请</span><a href=\"{% url 'userapp:login' %}?current_id=1\" class=\"login_link\">登录</a><a href=\"{% url 'userapp:register' %}?current_id=1\">免费注册</a>";
+                    }
+                }
+            })
+        }
+
+        eval("(" + xhr.responseText + ")");
+        function decrease_num(b,book_id,dang_price){
+            {#获得当前输入框中的value值#}
+            var cur_num = parseInt($(b).next().val());
+            if(cur_num > 1)
+            {
+                $(b).next().val(cur_num -1);
+                $("#"+book_id).text((dang_price * (cur_num-1)).toFixed(1)); {#更新书的价格#}
+               if($("#button"+book_id).attr('title')==='1')
+               {    ajax_num_adjust(book_id,cur_num-1);     }
+            }
+        }
+
+        function increase_num(c,book_id,dang_price) {
+          var _num = parseInt($(c).prev().val());
+             $(c).prev().val(_num + 1);
+             $("#"+book_id).text((dang_price * (_num+1)).toFixed(1));
+            if($("#button"+book_id).attr('title')==='1')
+            {   ajax_num_adjust(book_id,_num + 1);      }
+        }
+
+        function set_num(a,book_id,dang_price)
+        {
+          var re = /^[1-9]+[0-9]*]*$/;
+          var temp = $(a).val();
+            if(!re.test(temp)){     $(a).val(1);    }
+            {#更新每样商品的部分总价#}
+             $("#"+book_id).text((dang_price * parseInt($(a).val())).toFixed(1));
+           if($("#button"+book_id).attr('title')==='1')
+               {    ajax_num_adjust(book_id,$(a).val());    }
+        }
+            function remove_from_cart(self,book_id)
+            {
+                if($("#button"+book_id).attr('title')==='1')
+                {
+                    ajax_remove_from_cart(book_id,'2');{#将书籍从购物车中彻底删除#}
+                 {#删除区和恢复区的操作#}
+                 $('#revover_table').append($('#tbody'+book_id));
+                 {#非常神奇，直接将内容转移到了恢复区#}
+                 $("#del_rev"+book_id).html(" <a onclick=\"recover_from_cart(this,"+book_id+")\" href=\"javascript:void(0)\" class=\"fn-remove-product\" dd_name=\"恢复\">恢复");
+                    {#重写恢复区中的删除标签为恢复标签#}
+                }else{ alert("请先选中商品"); }
+            }
+            function recover_from_cart(self,book_id )
+            {
+              if($("#button"+book_id).attr('title')==='1')
+                {
+                  var book_num = $("#book"+book_id).val();
+                  ajax_add_to_cart(book_id,book_num);
+                 {#将内容从恢复区转移到罗列区#}
+                 $('#item_table').append($('#tbody'+book_id));
+                 $("#del_rev"+book_id).html("  <a onclick=\"remove_from_cart(this,"+book_id+")\" href=\"javascript:void(0)\" class=\"fn-remove-product\">删除</a>");
+                }
+            }
+        function settle_accounts() {
+            {#跳转到订单确认页面#}
+             if(parseInt($("#num_items").text()))
+             {  location.href = "{% url 'orderapp:indent' %}"; }
+             else{
+                 alert('请添加物品 ^_^ ');
+             }
+        }
+
+        function select(self,book_id) {
+            if($(self).attr('title') === '0'){
+                $(self).attr('title','1');$(self).removeClass('check_de');$(self).addClass("check_on");
+                if($(self).attr('id')=== "buyall" ||$(self).attr('id')=== "giveup_all")
+                {   $(".BOOK").attr('title','1'); $(".BOOK").removeClass("check_de");$(".BOOK").addClass("check_on");
+                    ajax_all_operation('1');{#传入参数 '1'代表全部选中 #}
+                }
+                else{
+                     $("#num_items").text(parseInt($("#num_items").text())+1);
+                     ajax_num_adjust(book_id,$("#book"+book_id).val());{#执行的是将该书的状态置为 True#}
+                    }
+            }else{
+                $(self).attr('title','0');$(self).removeClass('check_on');$(self).addClass("check_de");
+                if($(self).attr('id')=== "buyall"||$(self).attr('id')=== "giveup_all")
+                {  $(".BOOK").attr('title','0'); $(".BOOK").removeClass("check_on");$(".BOOK").addClass("check_de");
+                     ajax_all_operation('2');{#传入参数 '2'代表全部不选 #}
+                }
+                else{
+                    ajax_remove_from_cart(book_id,'1');
+                }
+            }
+        }
+    </script>
+</head>
+<body style="padding-bottom:82px">
+<link href="/static/css/header_960_150611.css" rel="stylesheet" type="text/css">
+<script src="/static/js/pagetop2015_0827.js" charset="gb2312" type="text/javascript"></script>
+<div id="hd">
+<div id="tools">
+<div class="tools">
+    <div class="ddnewhead_operate" >
+        <div class="ddnewhead_welcome" >
+            <span id="nickname">
+                 {% if request.session.username %}
+                 <span class="hi hi_none">欢迎<span> </span>{{ request.session.username }}！</span>
+                 <a href="javascript:void(0)" onclick="logout()">【退出登录】</a>
+             {% else %}
+                 <span class="hi hi_none">欢迎光临当当，请</span>
+                <a href="{% url 'userapp:login' %}?current_id=3" class="login_link">登录</a>
+                <a href="{% url 'userapp:register' %}?current_id=3">免费注册</a>
+            {% endif %}
+            </span>
+        </div>
+        <div class="new_head_znx" id="znx_content" style="display:none;"></div>
+    </div>
+</div>
+</div>
+<div id="header_end"></div>
+<!--CreateDate  2016-09-28 11:30:01--></div>
+<form action="#" id="bootpagetopSearch" name="bootpagetopSearch" method="GET"></form>
+<script type="text/javascript" src="http://orderb.dangdang.com/queryunpaid?callback=Unpaid_Data"></script>
+		<div class="shoppingcart_wrapper" id="ad_cpt_11850">
+            <div>
+                <a href="javascript:void(0)" target="_blank" rel="nofollow"><img src="http://img62.ddimg.cn/2017/1/11/2017011111344969879.jpg"></a>
+            </div>
+        </div>
+<div class="logo_line">
+    <div class="w960">
+        <div class="shopping_procedure">
+            <span class="current">我的购物车</span><span>填写订单</span><span>完成订单</span>
+        </div>
+        <div class="logo"><a href="javascript:void(0)"><img src="/static/images/bz_logo_car.jpg" alt=""></a></div>
+    </div>
+</div>
+
+<div class="add_line" id="district">
+    <div class="w960">
+        <div class="address" id="dp_adress">
+            <span class="icon_adr">&nbsp</span>配送地址：
+            <div class="select_add">
+                <span class="text fn-select-address">北京市东城区</span>
+                <div class="area_pop" style="display:none;">
+                    <a href="javascript:district.close()" class="close"></a>
+                    <ul class="tab">
+                        <li id="ap_province" class="fn-show-province">
+                            <a href="javascript:void(0)" id="selected_111">北京</a>
+                        </li>
+                        <li id="ap_city" class="fn-show-city">
+                            <a href="javascript:district.show_city_init(this)" id="selected_1">北京市</a>
+                        </li>
+                        <li id="ap_area" class="fn-show-area choose">
+                            <a href="javascript:district.show_area_init(this)" id="selected_1110101">东城区</a>
+                        </li>
+                        <li id="ap_village" style="display:none" class="fn-show-village">
+                            <a href="javascript:district.show_village_init(this)" id="selected_-1">请选择</a>
+                        </li>
+                    </ul>
+                    <ul class="list list_notaligned fn-adress"></ul>
+                </div>
+            </div>
+            <!--<a href="#" class="tip"></a>-->
+            <span class="tip_c" style="display:none;">针对不同配送地址，您的货物可能出现缺货或无货状态，敬请谅解。</span>
+        </div>
+    </div>
+</div>
+
+{#<div class="w960" id="showTip">#}
+{#	<!-- 结算时 商品SPU限购提示窗口 start-->#}
+{#	<div id="spuPromoLimitDiv" class="pop" style="left:50%; top:50%; margin:-200px 0 0 -253px; position: fixed; z-index: 1004; display: none;">#}
+{#		<a class="close"></a>#}
+{#		<div class="pop_title">商品限购</div>#}
+{#		<div class="popup_limit"></div>#}
+{#		<div class="btn_bar limit_bar">#}
+{#			<a class="btn_red">确定</a>#}
+{#            <a class="pop_btn">取消</a>#}
+{#		</div>#}
+{#	</div>#}
+{#	<!-- 结算时 商品SPU限购提示窗口 end-->#}
+{#	<div id="giftDiv" class="pop_tip gift_select" style="left:50%; top:50%; margin:-200px 0 0 -302px; position: fixed; z-index: 1001; display: none;">#}
+{#		<div class="head_title">#}
+{#			<div class="title_name">您购物车中以下商品可选为赠品</div>#}
+{#			<div class="close"></div>#}
+{#		</div>#}
+{#		<div class="products_sort" id="giftArea">#}
+{#		</div>#}
+{#		<a href="javascript:void(0)" class="btn_b fn-back-cart">返回购物车选赠品</a>#}
+{#        <a id="gift_checkout" href="#" class="btn_b">继续结算，土豪任性不要了</a>#}
+{#	</div>#}
+{#	<div class="login_tip" style="display: none;">#}
+{#		<span class="icon"></span>#}
+{#	</div>#}
+{#	<div id="remove_pop" class="login_tip" style="display: none;">#}
+{#		<span class="icon"></span>#}
+{#	</div>#}
+{#	<div id="clear_pop" class="login_tip" style="display: none;">#}
+{#		<span class="icon"></span>#}
+{#	</div>#}
+{#</div>#}
+
+<div class="w960" id="cart">
+    <ul class="shopping_title" id="j_carttitle">
+        <li class="f1">
+            <a id="buyall" title="1" onclick="select(this,'all')" href="javascript:void(0)" class="checknow fn-checkall check_on BOOK" >选中</a>全选
+        </li>
+        <li class="f2">商品信息</li>
+        <li class="f3">单价（元）</li>
+        <li class="f4">数量</li>
+        <li class="f4">金额（元）</li>
+        <li class="f5">操作</li>
+    </ul>
+<div class="fn-shops" id="J_cartContent">
+    <div class="fn-shop">
+{#            <table border="0" cellspacing="0" cellpadding="0" class="shop_title"><tbody><tr>#}
+{#                    <td><a href="javascript:void(0)" class="checknow fn-shop-checkall check_on">选中</a></td>#}
+{#                    <td><span class="shop_icon"></span></td>#}
+{#                    <td><a href="{% url 'bookapp:index' %}" target="_blank">当当</a></td>#}
+{#                    <td></td>#}
+{#                    <td></td></tr></tbody>#}
+{#            </table>#}
+<div class="shopping_list">
+    <table id="item_table" width="100%" border="0" cellspacing="0" cellpadding="0">
+    {% if items %}
+    {% for item in items %}
+    <tbody id="tbody{{ item.book.id }}">
+    <tr id="tr_424893864" class="  ">
+     <td class="row1">
+         <a  id='button{{ item.book.id }}' title="1" onclick="select(this,{{ item.book.id }})" href="javascript:void(0)"
+            class="fn-product-check checknow check_on BOOK">选中</a>
+     </td>
+     <td class="row_img">
+         <a href="{% url 'bookapp:book_details' %}?book_id={{ item.book.id }}" target="_blank">
+             <img onmouseout="$(this).parent().next().hide()" onmouseover="$(this).parent().next().show()" src="/static/{{ item.book.cover_pics }}" width="80" height="80">
+         </a>
+         <div style="display: none;" class="img_big">
+             <a href="{% url 'bookapp:book_details' %}?book_id={{ item.book.id }}" target="_blank"><img src="/static/{{ item.book.cover_pics }}"></a>
+             <span class="arrow"></span>
+         </div>
+     </td>
+     <td class="row_name">
+         <div class="name"><a href="{% url 'bookapp:book_details' %}?book_id={{ item.book.id }}" title="{{ item.book.book_name }}" target="_blank" dd_name="查看详情" style="word-break:break-all;  word-wrap:break-word;">{{ item.book.book_name }}（你要读！！！）</a>
+         </div>
+     </td>
+     <td class="row3"><span>¥{{ item.book.dangdang_price }}</span></td>
+     <td class="fn-count-tip row3 ">
+    {# 减少，设置，添加 ---------------------------------------------------#}
+         <span class="amount fn-updatecount ">
+         <a onclick="decrease_num(this,{{ item.book.id }},{{ item.book.dangdang_price }})"  href="javascript:void(0)">-</a>
+        <input id='book{{ item.book.id }}' onblur="set_num(this,{{ item.book.id }},{{ item.book.dangdang_price }})" value="{{ item.book_num }}" type="text" maxlength="4">
+        <a onclick="increase_num(this,{{ item.book.id }},{{ item.book.dangdang_price }})"  href="javascript:void(0)">+</a>
+        </span>
+     {# 减少，设置，添加 ---------------------------------------------------#}
+     </td>
+     <td class="row4">
+         <span class="red" id="{{ item.book.id }}">{% widthratio item.book.dangdang_price 1.0 item.book_num %}.0 </span>
+     </td>
+     <td class="row5 " align="left">
+         {# <span><a href="javascript:void(0)" data-item="424893864" class="fn-add-wish" dd_name="加入收藏按钮">移入收藏</a></span>#}
+         {#  删除时，将a标签内容重写，恢复时也是相同的操作#}
+     <span id="del_rev{{ item.book.id }}">
+        <a onclick="remove_from_cart(this,{{ item.book.id }})" href="javascript:void(0)" class="fn-remove-product">删除</a>
+     </span>
+     </td>
+ </tr>
+ </tbody>
+    {% endfor %}
+      <tfoot><tr class="total">
+            <td class="row1">&nbsp</td><td class="row_img">店铺合计</td><td colspan="2">&nbsp;</td>
+            <td colspan="3" class="row4">
+                <span id='shop_total_price' class="red big ooline alignright">¥{{ cart.total_cost }}</span>
+            </td></tr>
+      </tfoot>
+    {% else %}
+    <div class="w960">
+        <div class="empty" id="empty" style="display:inline-block">
+            <p>您的购物车还是空的，您可以：</p><a href="{% url 'bookapp:index' %}" class="btn">去逛逛</a>
+        </div>
+    </div>
+    {% endif %}
+    </table>
+</div>
+    <div class="shipping_add" style="display:none;"></div>
+</div>
+</div>
+{#    <div class="shoppingcart_loading" id="J_cartLoading" style="display: none;">#}
+{#        <img height="30" width="30" src="/static/images/loading.gif">#}
+{#    </div>#}
+</div>
+{#<div class="w960" id="weipinboxarea" style="display: none"><div class="login_tip">#}
+{#    <span class="icon"></span>购物车中有#}
+{#    <a id="weipinhui" href="http://v.dangdang.com" class="icon_eve weipin" style="display: none;">尾品汇</a>#}
+{#    <a id="zuizhidang" href="http://z.dangdang.com" class="icon_eve zhidang" style="display: none;">z值当</a>#}
+{#    商品，请在#}
+{#    <span class="time" id="J_limitedMinute"></span>#}
+{#    <span class="time" id="J_limitedSecond"></span>内结算.#}
+{#    <a herf="javascript:;" class="more fn-vnewz-tips">了解限时结算&gt;&gt;</a>#}
+{#</div>#}
+{#</div>#}
+
+<div id="hide_div" style="height:0px;visibility:hidden;"></div>
+<div style="position:static;bottom:-20px;z-index: 101;width:100%;left:0px;">
+  <div class="shopping_total" id="J_totalMoneyBlock">
+    <div class="shopping_total_right">
+{# 结算按钮----------------------------------------------------------------------------------#}
+        <a  onclick="settle_accounts()" class="total_btn fn-checkout" href="javascript:void(0)" id="checkout_btn" >结&nbsp;&nbsp;算</a>
+        <div class="subtotal">
+            <p><span class="cartsum">总计(不含运费)：</span>
+                <span id="payAmount" class="price">¥{{ cart.total_cost }}</span>
+            </p>
+            <p><span class="cartsum">已节省：</span>
+                <span id="totalFavor">¥{{ cart.saving_cost }}</span>
+            </p>
+        </div>
+{#        <div class="pop_del pop_ebook fn-ck" id="ck_tip" style="display:none">#}
+{#			<h1>电子书重复购买提示</h1>#}
+{#			<p></p>#}
+{#			<a id="ck_link" href="#" class="pop_btn">朕知道了</a>#}
+{#		</div>#}
+    </div>
+    <div class="shopping_total_left" id="J_leftBar">
+
+        <a id="giveup_all" title='1' onclick="select(this,'all')" href="javascript:void(0)" class="checknow fn-checkall check_on BOOK" >选中</a>全选
+        <a id="giveup_all2"  href="javascript:void(0)" class="fn-batch-remove" >批量删除</a>
+
+        <span>已选择<font color="red" id="num_items">{{ num_of_items }}</font>件商品</span>
+{#        <div id="J_batchRemoveProductBox" style="display: none;z-index:-1;left:0px;" class="pop_del">#}
+{#            <p>您确定要批量删除商品吗？</p>#}
+{#            <a href="javascript:;" class="pop_btn fn-confirm-batchremovebox">确定</a>#}
+{#            <a href="javascript:;" class="pop_btn fn-close-batchremovebox">取消</a>#}
+{#        </div>#}
+{#        <div id="J_batchAddWishBox" style="display: none;z-index:-1;left:85px;" class="pop_del col ">#}
+{#            <p>您确定要批量移入收藏吗？</p>#}
+{#            <a href="javascript:;" class="pop_btn fn-confirm-batchaddwish">确定</a>#}
+{#            <a href="javascript:;" class="pop_btn fn-close-batchwishbox">取消</a>#}
+{#        </div>#}
+    </div>
+  </div>
+</div>
+{#删除后待恢复的书籍#}
+<div class="w960" id="cart">
+    <div class="fn-shops" id="J_cartContent">
+        <div class="fn-shop">
+            <div class="shopping_list">
+                <table id='revover_table' width="100%" border="0" cellspacing="0" cellpadding="0">
+
+                </table>
+            </div>
+         </div>
+    </div>
+</div>
+{#<div id="J_errorBox" style="display: none;z-index:102" class="pop_del col">#}
+{#    <p></p>#}
+{#    <a class="pop_btn fn-close-removebox" href="javascript:;">确定</a>#}
+{#</div>#}
+{#<div id="J_addToWishTipHtml" style="display: none; position: absolute;"></div>#}
+{#<div id="J_addWishBox" style="display: none" class="pop_del col ">#}
+{#    <p>移入收藏后，将不在购物车显示，是否继续操作？</p>#}
+{#    <a href="javascript:;" class="pop_btn fn-confirm-addwish">确定</a>#}
+{#    <a href="javascript:;" class="pop_btn fn-close-wishbox">取消</a>#}
+{#</div>#}
+{#<div id="J_removeProductBox" style="display: none;" class="pop_del">#}
+{#    <p>您确定要删除商品吗？</p>#}
+{#    <a href="javascript:;" class="pop_btn fn-confirm-removebox">确定</a>#}
+{#    <a href="javascript:;" class="pop_btn fn-close-removebox">取消</a>#}
+{#</div>#}
+{#<div id="J_removeGiftBox" style="display: none;" class="pop_del"><p>您确定要删除赠品吗？</p>#}
+{#    <a href="javascript:;" class="pop_btn fn-confirm-removegiftbox">确定</a>#}
+{#    <a href="javascript:;" class="pop_btn fn-close-removebox">取消</a>#}
+{#</div>#}
+
+{#<div class="w960">#}
+{#    <div class="empty" id="empty" style="display:inline-block">#}
+{#        <p>您的购物车还是空的，您可以：</p>#}
+{#        <a href="http://www.dangdang.com" class="btn">去逛逛</a>#}
+{#    </div>#}
+{#</div>#}
+{#<div class="pop_del pop_ebook" style="left:460px; right:auto; top:-130px;display: none;" id="J_vnewzTipBox">#}
+{#	<a href="#" class="close"></a>#}
+{#	<h1>限时说明</h1>#}
+{#	<p>由于尾品会和新品汇的商品库存有限，我们只能为您保留#}
+{#        <span class="red">20分钟</span>，否则尾品会及新品汇的商品将被删除，请尽快结算。#}
+{#    </p>#}
+{#</div>#}
+
+
+<div id="footer">
+<div class="footer">
+	<div class="footer_nav_box">
+		<div class="footer_copyright">
+            <span>Copyright (C) 当当网 2004-2014, All Rights Reserved</span>
+            <a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202001051000098"
+               target="_blank" class="footer_img" rel="nofollow">
+                <img src="http://img4.dangdang.com/bottom/validate.gif">
+            </a>
+            <span><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">京ICP证041189号</a></span>
+            <span>出版物经营许可证&nbsp;新出发京批字第直0673号</span>
+        </div>
+	</div>
+</div>
+</div>
+    <div class="foot_tip_ad">广告</div>
+    <style>
+        .foot_tip_ad { width:40px; height:40px; font:12px/40px "simsun"; text-align:center; color:#fff; background-color:#474747; position:fixed; right:0; bottom:10px;_position:absolute; _bottom:auto;_top:expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.offsetHeight-(parseInt(this.currentStyle.marginTop,10)||0)-(parseInt(this.currentStyle.marginBottom,10)||0)));}
+    </style>
+</body>
+</html>

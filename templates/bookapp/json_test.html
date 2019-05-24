@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>json</title>
+    <script src="/static/jquery/jquery.1.8.3.min.js"></script>
+    <script>
+        function click_me() {
+            var dict = {
+              "num":3,
+              "items":["a","b","c","d"]
+            };
+            $.ajax({
+                type:'get',
+                url:"json/",
+                data: {"data":JSON.stringify(dict)},
+                success:function (res) {
+                    alert(JSON.stringify(dict));
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+        <button onclick="click_me()" type="button">点击我</button>
+</body>
+</html>

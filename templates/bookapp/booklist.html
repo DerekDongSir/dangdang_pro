@@ -1,0 +1,516 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+    <base href="" />
+    <title>当当</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="ddclick_guan" content="1" />
+    <link rel="stylesheet" type="text/css" href="/static/css/category_pub.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/header_150803.css"/>
+    <script src="/static/jquery/jquery.1.8.3.min.js"></script>
+    <script type="text/javascript" src="/static/js/tab.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script>
+        {#method 参数为 0 代表按照销量排序，1代表价格，2代表出版时间#}
+        function book_sort(method) {
+            $.ajax({
+                type:"GET",
+                url:"{% url 'bookapp:book_sort' %}",
+                data:"method="+method+"&cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.number }}",
+                {#books是一个列表，其元素为字典对象#}
+                success:function (books) {
+             inner_text ="";
+            for(var i=0;i<books.length;i++){
+            inner_text+= "<li class=\"line"+(i+1)+"\"id=\"23668351\"><div class=\"inner\"><a title=\""+books[i]["book_name"];
+            inner_text += "\" class=\"pic\"href=\""+"{% url 'bookapp:book_details'%}?book_id="+books[i]['id']+"\"";
+            inner_text += "target\"_blank\"><img src=\"/static/"+books[i]['cover_pic']+"\" alt=\""+books[i]['book_name']+"\"></a>";
+            inner_text += "<p class=\"name\"><a title=\""+books[i]['book_name']+"\" href=\""+"{% url 'bookapp:book_details' %}";
+            inner_text +="?book_id="+books[i]['id']+"\" target=\"_blank\">"+books[i]['book_name']+"</a></p>";
+            inner_text += "<p class=\"star\"><span class=\"level'\"><span style=\"width:100%;\"</span></span><a href=\"#\" target=\"_blank\" name=\"P_p1\">16328条评论</a></p>";
+            inner_text +="<div class=\"publisher_info\"><p class=\"author\"><span></span><a href=\"#\" name=\"P_zz\" title=\"Derek\">Derek</a></p>";
+            inner_text +=  "<p class=\"publishing_time\"><span></span>/"+books[i]['publish_time']+"<p class=\"publishing\"><span></span>/<a href=\"#\" name=\"P_cbs\" title=\"天津人民出版社\">天津人民出版社</a>\n" + "</p></div>";
+            inner_text += "<p class=\"detail\">这是一本好书，你要读！！！</p><p class=\"dang\" style=\"display: block;\">当当自营</p>";
+            inner_text += "<p class=\"buy_button\"><a class=\"listbtn_info\" name=\"area_buy\" dd_name=\"查看详情\" href=\"";
+            inner_text += "{% url 'bookapp:book_details' %}?book_id="+books[i]['id']+"\">查看详情</a></p>";
+            inner_text += "<p class=\"price\"> <span class=\"price_n\">￥"+books[i]['dangdang_price']+"</span><a ";
+            inner_text += "style=\"color: #878787;text-decoration:none;\">定价：</a><span class=\"price_r\">￥"+books[i]['marketing_price'];
+            inner_text += "</span>(<span class=\"price_s\" >"+books[i]['discount']+"折 </span> )</p>";
+            inner_text += "<div class=\"ebook_buy\"> <p class=\"buy_button\"><a class=\"listbtn_buy\" id=\"a_buy\" dd_name=\"加入购物车\" style=\"display: inline-block\"";
+            inner_text += "href=\"javascript:add_to_cart(this,"+books[i]['id']+")\" name=\"Buy\"></a><img id=\""+books[i]['id']+"\" src=\"/static/pics/5-121204194025.gif\" width=\"20px\" style=\"display: none\">";
+            inner_text += "<img  src=\"/static/pics/right_3.jpg\" width=\"20px\" style=\"display: none\"></p></div>";
+            inner_text += "<p class=\"subtitle\">（这是一本好书，你要读！！！）</p></div></li>";
+            }
+            document.getElementById("component_0__0__3058").innerHTML = inner_text;
+            }
+            })
+        }
+        function logout() {
+            $.ajax({
+                type:'GET',
+                url:"{% url 'userapp:logout' %}",
+                success:function (res) {
+                    if(res === 'ok'){
+                        document.getElementById('nickname').innerHTML =" <span class=\"hi hi_none\">欢迎光临当当，请</span><a href=\"{% url 'userapp:login' %}?current_id=1\" class=\"login_link\">登录</a><a href=\"{% url 'userapp:register' %}?current_id=1\">免费注册</a>";
+                    }
+                }
+            })
+        }
+        function add_to_cart(a,book_id) {
+            $(a).css('display','none');
+            $('#'+book_id).css('display','inline-block');
+            $.ajax({
+                type:'GET',
+                url:"{% url 'orderapp:add_to_cart' %}",
+                data:"book_id="+book_id,
+                success:function (res) {
+                    if(res != 'no'){
+                        $('#'+book_id).css('display','none');
+                        $('#'+book_id).next().css('display','inline-block');
+                        setTimeout(function () {
+                            $('#'+book_id).next().css('display','none');
+                            $(a).css('display','inline-block');
+                        },1000)
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+{#hd 块--------------------------------------------------#}
+<div id="hd">
+  <div id="tools">
+    <div class="tools">
+      <div class="ddnewhead_operate" dd_name="顶链接">
+        <div class="new_head_znx" id="znx_content" style="display:none;"></div>
+        <div class="ddnewhead_welcome" display="none;">
+          <span id="nickname">
+            {% if request.session.username %}
+                 <span class="hi hi_none">欢迎<span> </span>{{ request.session.username }}！</span>
+                 <a href="javascript:void(0)" onclick="logout()">【退出登录】</a>
+             {% else %}
+                 <span class="hi hi_none">欢迎光临当当，请</span>
+{#                <a href="{% url 'userapp:login' %}?current_id=1&cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.number }}" class="login_link">登录</a>#}
+                <a href="{% url 'userapp:login' %}?current_id=1" class="login_link">登录</a>
+{#                <a href="{% url 'userapp:register' %}?current_id=1&cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.number }}">免费注册</a>#}
+                <a href="{% url 'userapp:register' %}?current_id=1">免费注册</a>
+            {% endif %}
+            </span>
+              <div class="tel_pop" style="display:none" id="__ddnav_sjdd"  onmouseover="showgaoji('a_phonechannel','__ddnav_sjdd');" onmouseout="hideotherchannel('a_phonechannel','__ddnav_sjdd');"> <a target="_blank" href="http://t.dangdang.com/20130220_ydmr" class="title"><i class="icon_tel"></i>手机当当</a><i class="title_shadow"></i>
+            <ul class="tel_pop_box">
+          <li><a href="http://t.dangdang.com/20130220_ydmr" dd_name="手机二维码"><span>当当手机客户端</span><img src="http://img3.ddimg.cn/00363/doc/erweima2.png"><span class="text">随手查订单<br>
+          随时享优惠</span></a></li>
+        </ul>
+          </div>
+                    </div>
+      </div>
+                </div>
+  </div>
+  <div id="header_end"></div>
+  <div style="position:relative;" class="logo_line_out">
+
+    <div class="logo_line" dd_name="搜索框">
+
+      <div class="logo"><img src="/static/images/DDlogoNEW.gif" usemap="#logo_link"/>
+        <map name="logo_link" id="logo_link" dd_name="logo区">
+          <area shape="rect" coords="0,18,200,93" href="http://www.dangdang.com" title="当当" onfocus="this.blur();">
+          <area shape="rect" coords="200,18,320,93" href="http://www.dangdang.com/" title="" target="_blank" onfocus="this.blur();">
+        </map>
+      </div>
+
+    {# 页面顶部搜索框模块--------------------------------------------------#}
+      <div class="search">
+        <form action="#" name="searchform"  id="form_search_new" onsubmit="return searchsubmit();"  method="GET">
+                      <label  for="key_S" class="label_search" id="label_key" onclick="this.style.color='rgb(255, 255, 255)';" style="visibility: visible; color: rgb(102, 102, 102);" >跟乐嘉学性格色彩2</label>
+                      <input type="text" class="text gray"  name="key" ID="key_S" autocomplete="off" onclick="key_onclick(event);" onfocus="key_onfocus(event);"  onblur="key_onblur();" onbeforepaste="onpaste_search();"/>
+                      <a href="javascript:void(0);" onclick="clearkeys();" class="del-keywords"></a><span class="select"  onmouseover="allCategoryShow();"  onmouseleave="allCategoryHide();" onmouseout='if("\v"!="v"){ allCategoryHide();}'>
+            <span id="Show_Category_Name" dd_name="全部分类">全部分类</span><span class="icon"></span>
+          <div id="search_all_category" class="select_pop" style="height:0px;padding: 0px;border-width: 0px;" dd_name="搜索分类">
+              <a href="javascript:void(0);" onclick="selectCategory('',this);" ><span id="Show_Category_Name" dd_name="全部分类">全部分类</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory('01.00.00.00.00.00',this);" dd_name="图书"><span>精品纸质图书</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4003900,this);" dd_name="电子书"><span>电子书</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4003760,this);" dd_name="网络课程"><span>网络课程</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4003844,this);" dd_name="AI"><span>人工智能专题</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4006497,this);" dd_name="BigData"><span>大数据</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4003613,this);" dd_name="python"><span>玩转Python</span></a>
+              <a href="javascript:void(0);" onclick="selectCategory(4003819,this);" dd_name="linux"><span>Linux专题</span></a></div>
+          </span>
+          <input type="hidden" id="default_key" value="跟乐嘉学性格色彩2"/>
+          <input type="submit" id="search_btn" dd_name="搜索按钮"  style="display:none"/>
+          <input id="SearchFromTop" style="display:none" type="hidden" name="SearchFromTop" value="1"/>
+          <input type="button" id="suggest_product_btn" name="suggestproduct_btn"  style="display:none" onclick="void(0)"/>
+          <input type="button" id="suggest_class_btn" name="suggestclass_btn"  style="display:none" onclick="void(0)"/>
+          <input type="submit" id="suggest_searchkey_btn" name="suggestsearchkey_btn"  style="display:none" dd_name="搜索按钮"/>
+          <input type="hidden" id="catalog_S" name="catalog" value="" >
+          <input type="button" class="button" dd_name="搜索按钮" onclick="javascript:document.getElementById('search_btn').click();"/>
+        </form>
+      </div>
+{# 页面顶部搜索框模块-  done---------------------------------------#}
+
+
+{#  购物车模块 -----------------------------------#}
+      <div id="suggest_key" class="suggest_key" style="display:none;" ></div>
+      <div class="ddnew_cart">
+          <a href="{% url 'orderapp:cart_page' %}"
+             name="购物车" dd_name="购物车"><i class="icon_card"></i>购物车<b id="cart_items_count"></b></a>
+      </div>
+   {#  购物车模块 done--------------------------- #}
+
+{#   我的订单按钮--------------------------------------------------------#}
+      <div class="ddnew_order">
+          <a target="_blank" href="{% url 'orderapp:indent' %}"
+             name="我的订单" dd_name="我的订单" rel="nofollow">我的订单
+              <b id="unpaid_num" style="color:#ff2832;font:bold 12px Arial;"></b>
+          </a>
+      </div>
+  {#   我的订单按钮 done------------------------------------------------- #}
+    </div>
+  </div>
+</div>
+{#hd 块   done--------------------------------------------------#}
+
+{#此div持续到 footer部分#}
+<div id="bd_auto" name="9149">
+{#分类上方的图片展示---------------------------------------------------------------#}
+  <div class="top_ad_banner"><a href="#">
+      <img src="/static/images/1200x65_sk_1229.jpg" width="1200" height="65" /></a>
+  </div>
+{#当当--图书--一级类--二级类-------------------------------------------------------#}
+  <div class="breadcrumb" id="B"> <a href="{% url 'bookapp:index' %}">当当</a><span>&gt;</span>
+      <a href="{% url 'bookapp:index' %}" name="B">图书</a><span>&gt;</span>
+      <a href="{% url 'bookapp:booklist' %}?cato_one_id={{ cato_one.id }}" name="B">{{ catoinfo.1 }}</a><span>&gt;</span>
+      {% if cato_two.flag %}
+         <span class="current">{{ cato_two.name }}</span>
+      {% endif %}
+  </div>
+{#具体的类别展示-------------------------------------------------------------------#}
+  <div class="col aside" name="4931">
+    <div class="" name="m142905_pid0_t4824">
+      <div class="col storey_one_left" name="9163">
+      <div class="sidemenu" name="m403752_pid0_t9141" dd_name="左侧分类" ddt-area="mix_403752" ddt-floor="mix_403752">
+
+          <div class="con flq_head" >分类浏览</div>
+
+      <div class="con flq_body" style="height: auto">  {% comment %}高度改为auto 就能够自动调整了{% endcomment %}
+        {#catoinfo是一级类下的列表，第一项为图书数量，第二项为类名，第三项为二级类字典---#}
+            <div class="level_one" >
+            <dl class="con primary_dl" >
+              <dt class="con " name="m403752_pid5367_t10276">
+                  <a href="{% url 'bookapp:booklist' %}?cato_one_id={{ cato_one.id }}"> <span>全部({{ cato_one.num }})</span>  </a>
+              </dt></dl></div>
+        {#key为二级类的id,ls为二级类列表，第一项为数量，第二项为类名---------------------#}
+            {% for key,ls in catoinfo.2.items%}
+            <div class="level_one" >
+            <dl class="con primary_dl" >
+              <dt class="con " name="m403752_pid5367_t10276">
+                  <a href="{% url 'bookapp:booklist'%}?cato_one_id={{ cato_one.id }}&cato_two_id={{ key }}" target="_blank">
+                      <span>{{ ls.1 }} ({{ ls.0 }})</span> </a>
+              </dt></dl></div>
+            {% endfor %}
+        {#进行标题填充的内容--------------------------------------------------------------#}
+            {% for title in title_list %}
+            <div class="level_one" >
+                <dl class="con primary_dl">
+                  <dt class="con "><span> <a  href="#" target="_blank" title="{{ title }}" class="" > {{ title }} </a>
+                  </span></dt>
+                </dl>
+              </div>
+            {% endfor %}
+        {#done----------------------------------------------------------------------------#}
+        </div>
+      </div>
+            <div class="spacer"></div>
+        </div>
+    </div>
+</div>
+{# col asidedone----------------------------------------------------#}
+  <div class="col article">
+    <div class="bk_sort" name="Sort">
+          <div id="component_281329"></div>
+      <div class="con tools_box">
+      {#  top 模块 --------------------------------------------------------- #}
+        <div class="con top">
+        {#排序模块-------------------------------------------------------------#}
+            <div class="col ">
+                <div class="t">排序：</div>
+                <ul class="sorting_box" name="Sort">
+                  <li class="on"><div title="默认排序" name="Mo" ddclick="">默认排序</div></li>
+                  <li class=""><div name="Xl" onclick="book_sort(method=0)" title="销量由高到低" ddclick="">销量<span class="icon"></span></div></li>
+                  <li class=""><div name="Jg" onclick="book_sort(method=1)" title="价格由低到高" ddclick="">价格<span class="icon icon_t"></span></div></li>
+                  <li class=""><div name="OT" onclick="book_sort(method=2)" title="出版时间由近到远" ddclick="">出版时间<span class="icon"></span></div></li>
+                </ul>
+            {# select box------------------------------------------    #}
+        <div class="select_box" name="Xl">
+            <span class="d">默认排序</span><span class="arrow"></span>
+            <div class="select_pop" style="display: none;">
+                <ul>
+                  <li class="on"><a name="Mo" href="javascript:void(0)" >默认排序</a></li>
+                  <li class=""><a name="Xl" href="javascript:void(0)" >
+                      按销量降序<span class="up"></span></a></li>
+                  <li class=""><a name="Jg" href="javascript:void(0)">
+                      按价格升序<span class="down"></span></a></li>
+                  <li class=""><a name="Jg" href="javascript:void(0)">
+                      按价格降序<span class="up"></span></a></li>
+                  <li class=""><a name="OT" href="javascript:void(0)">
+                      出版时间降序<span class="up"></span></a></li>
+                </ul>
+            </div>
+        </div>
+           {# select box-done---------------------------------------    #}
+        {#根据价格筛选---------------#}
+        <div class="t_s">价格：</div>
+        <div class="interval" id="prices" name="Jgsx">
+            <div class="inner">
+                <input type='text' class='text' value='' name='low_price' id='input_lowp'>-<input type='text' class='text'>
+{#                 <input type="button" class="button" value="清除" id="btn_cls" name="Price">#}
+{#                 <input  type="button" class="button btn_yes " value="确定" id="btn_yes" name="Price"/>#}
+             </div>
+        </div>
+       {#价格筛选--done-------------#}
+    </div>
+    {#排序模块   done-------------------------------------------------------#}
+    {#商品数量显示模块-------------------------------------------------------#}
+    <div class="col ">
+        <div class="data" name="Fy">共<span>
+          {% if cato_two.flag %}    {{ cato_two.num }}
+          {% else %}    {{ cato_one.num }}
+          {% endif %} </span>个商品
+            {# 左前进箭头#}
+        {% if books.has_previous %}
+        <a href="{% url 'bookapp:booklist'%}?cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.previous_page_number}}" class="arrow_l arrow_l_on"></a>
+         {% else %} <a href="javascript:void(0)" class="arrow_l"></a>
+        {% endif %}
+        <span class="or">{{ books.number }}</span>
+        <span>/{{ books.paginator.num_pages }}</span>
+        {#  右前进箭头#}
+        {% if books.has_next %}
+        <a href="{% url 'bookapp:booklist'%}?cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.next_page_number}}"class="arrow_r arrow_r_on"></a>
+        {% else %}
+        <a href="javascript:void(0)" class="arrow_r"></a>
+        {% endif %}
+        </div>
+    </div>
+    {#商品数量显示模块   done------------------------------------------------#}
+      </div>
+    {#top done----------------------------------------------------#}
+    </div>
+  </div>
+</div>
+{#col article done-----------------------------------------------#}
+
+<div class="book_shoplist" dd_utopia="on" name="Product">
+             <div id="component_2963524"></div>
+
+    <div class="con shoplist">
+    {#图书信息罗列---------------------------------------------#}
+      <ul class="list_aa listimg" id="component_0__0__3058">
+      {% for book in books.object_list %}
+
+        <li class="line{{ forloop.counter }}" id="23668351">
+          <div class="inner">
+              <a title="{{ book.book_name }}" class="pic" href="{% url 'bookapp:book_details' %}?book_id={{ book.id }}"
+                target="_blank">
+              <img src="/static/{{ book.cover_pics }}" alt=" {{ book.book_name }}">
+              </a>
+            <p class="name"><a title="{{ book.book_name }}" href="{% url 'bookapp:book_details' %}?book_id={{ book.id }}" target="_blank"> {{ book.book_name }} </a></p>
+            <p class="star"><span class="level"><span style="width: 100%;"></span></span>
+                <a href="javascript:void(0)" target="_blank" name="P_pl">163281条评论</a>
+            </p>
+            <div class="publisher_info">
+              <p class="author"><span></span><a href="javascript:void(0)" name="P_zz" title="Derek">Derek</a></p>
+              <p class="publishing_time"><span></span>/ {{ book.publish_time|date:'Y/m/d' }}</p>
+              <p class="publishing"><span></span>/
+                  <a href="javascript:void(0)" name="P_cbs" title="天津人民出版社">天津人民出版社</a>
+              </p>
+            </div>
+            <p class="detail">这是一本好书，你要读！！！</p>
+            <p class="dang" style="display: block;">当当自营</p>
+            {#点击查看详情#}
+            <p class="buy_button">
+                <a class="listbtn_info" name="area_buy" dd_name="查看详情"
+                   href="{% url 'bookapp:book_details' %}?book_id={{ book.id }}" >查看详情
+                </a>
+            </p>
+            <p class="price"> <span class="price_n">￥{{ book.dangdang_price }}</span><a style="color: #878787;text-decoration:none;">定价：</a>
+                <span class="price_r">￥{{ book.marketing_price }}</span>
+                (<span class="price_s" id="book_discount">
+                    {% widthratio  book.dangdang_price book.marketing_price  10 %}折
+                </span> )
+            </p>
+
+            <div class="ebook_buy">
+              <p class="buy_button">
+                  <a class="listbtn_buy" id="a_buy" dd_name="加入购物车" style="display: inline-block"
+               href="javascript:add_to_cart(this,{{ book.id }})" name="Buy">
+                  </a>
+                  <img id='{{ book.id }}' src="/static/pics/5-121204194025.gif" width="20px" style="display: none">
+                  <img  src="/static/pics/right_3.jpg" width="20px" style="display: none">
+              </p>
+            </div>
+            <p class="subtitle"> （这是一本好书，你要读！！！） </p>
+          </div>  {% comment %}inner done{% endcomment %}
+        </li>
+          {% endfor %}
+      </ul>
+    </div>  {% comment %}con shoplist done{% endcomment %}
+
+    <div class="" name="m2963520_pid0_t3989">
+        <div id="component_2963520"></div>
+    <div class="con paginating" name="m2963520_pid0_t3990">
+        <script type="text/javascript" src="/static/js/jquery/lazyload181.js"></script>
+        <script type="text/javascript"> $("img[data-original]").lazyload(); </script>
+        <ul class="paging" name="Fy">
+            {% if books.has_previous %}
+             <li class="prev "><a href="{% url 'bookapp:booklist' %}?cato_one_id={{ cato_one_id }}&cato_two_id={{ cato_two_id }}&page_num={{ books.previous_page_number }}">上一页</a></li>
+            {% else %}
+                <li class="prev none"><a>上一页</a></li>
+            {% endif %}
+                {% for num in books.paginator.page_range %}
+                    <li><a href="{% url 'bookapp:booklist' %}?cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ num}}"
+                    {% if num == books.number %}
+                        class=" current">
+                   {% else %}
+                          class="null">
+                    {% endif %}
+                    {{ num }}</a></li>
+                {% endfor %}
+                    <li><span>...<span></span></span></li>
+                {% if books.has_next %}
+                <li class="next"><a href="{% url 'bookapp:booklist'%}?cato_one_id={{ cato_one.id }}&cato_two_id={{ cato_two.id }}&page_num={{ books.next_page_number}}">下一页</a></li>
+                {% else %}
+                <li class="next none"><a>下一页</a></li>
+                {% endif %}
+                <li class="page_input"><span>共{{ books.paginator.num_pages }}页 到第</span>
+                <input id="input_page_num" type="text" class="number" value="1"/>
+            <span>页</span>
+            <input class="button" id="click_get_page" value="确定" type="button" onclick="click_get_page()">
+                </li>
+        </ul>
+    </div>  {% comment %}con pagintor done{% endcomment %}
+</div>  {% comment %}name="m2963520_pid0_t3989" done{% endcomment %}
+</div>  {% comment %}bookshop list done{% endcomment %}
+</div> {% comment %}bd auto done{% endcomment %}
+
+
+
+{#此块下方部分暂且不要动#}
+<div id="footer">
+              <link href="/static/css/footer_150526.css" rel="stylesheet" type="text/css">
+              <div class="footer" dd_name="页尾">
+    <div class="footer_pic_new">
+                  <div class="footer_pic_new_inner"> <a name="foot_1" href="http://help.dangdang.com/details/page13" target="_blank" class="footer_pic01"><span>正规渠道正品保障</span></a> <a name="foot_2" class="footer_pic02" href="http://help.dangdang.com/details/page21" target="_blank"><span>放心购物货到付款</span></a> <a name="foot_3" class="footer_pic03" href="http://help.dangdang.com/details/page16" target="_blank"><span>150城市次日送达</span></a> <a name="foot_4" class="footer_pic04" href="http://help.dangdang.com/details/page29" target="_blank"><span>上门退货当场退款</span></a> </div>
+                </div>
+    <div class="public_footer_new">
+                  <div class="footer_sort footer_nvice"> <span class="f_title">购物指南</span>
+    <ul>
+          <li><a name="foot_gouwu" href="http://help.dangdang.com/details/page2" target="_blank" class="main" rel="nofollow">购物流程</a></li>
+          <li><a name="foot_jifen" href="http://help.dangdang.com/details/page6" target="_blank" rel="nofollow">发票制度</a></li>
+          <li><a name="foot_fapiao" href="http://safe.dangdang.com" target="_blank" rel="nofollow">账户管理</a></li>
+          <li><a name="foot_mydangdang" href="http://help.dangdang.com/details/page8" target="_blank" rel="nofollow">会员优惠</a></li>
+    </ul>
+      </div>
+          <div class="footer_sort footer_pay"> <span class="f_title">支付方式</span>
+        <ul>
+              <li><a name="foot_tuihuanhuoliucheng" href="http://help.dangdang.com/details/page21" target="_blank" rel="nofollow">货到付款</a></li>
+              <li><a name="foot_tuihuanhuo" href="http://help.dangdang.com/details/page22" target="_blank" rel="nofollow">网上支付</a></li>
+              <li><a name="foot_huanhuo" href="http://help.dangdang.com/details/page24" target="_blank" rel="nofollow">礼品卡支付</a></li>
+              <li><a name="foot_tuihuo" href="http://help.dangdang.com/details/page23" target="_blank" rel="nofollow">银行转帐</a></li>
+        </ul>
+      </div>
+          <div class="footer_sort footer_characteristic"> <span class="f_title">订单服务</span>
+        <ul>
+              <li><a name="foot_jifen" href="http://help.dangdang.com/details/page19" target="_blank" class="main" rel="nofollow">订单配送查询</a></li>
+              <li><a name="foot_lipinka" href="http://help.dangdang.com/details/page4" target="_blank" rel="nofollow">订单状态说明</a></li>
+              <li><a name="foot_ershoushu" href="http://orderb.dangdang.com/myallorders.aspx" target="_blank" rel="nofollow">自助取消订单</a></li>
+              <li><a name="foot_shouji" href="http://orderb.dangdang.com/myallorders.aspx" target="_blank" rel="nofollow">自助修改订单</a></li>
+        </ul>
+      </div>
+                  <div class="footer_sort footer_distribution"> <span class="f_title">配送方式</span>
+        <ul>
+                      <li><a name="foot_huodaofukuan" href="http://help.dangdang.com/details/page14" target="_blank" class="main" rel="nofollow">配送范围及免邮标准</a></li>
+                      <li><a name="foot_yinhangzhuanzhang" href="http://help.dangdang.com/details/page15" target="_blank" class="main" rel="nofollow">当日递/次日达</a></li>
+                      <li><a name="foot_dangdanglijuan" href="http://help.dangdang.com/details/page18" target="_blank" rel="nofollow">订单自提</a></li>
+                      <li><a name="foot_dangdanglijuan" href="http://help.dangdang.com/details/page20" target="_blank" rel="nofollow">验货与签收</a></li>
+                    </ul>
+      </div>
+                  <div class="footer_sort footer_help"> <span class="f_title">退换货</span>
+        <ul>
+          <li><a name="foot_faq" href="http://help.dangdang.com/details/page28" target="_blank" rel="nofollow">退换货政策</a></li>
+          <li><a name="foot_zhaohuimima" href="http://return.dangdang.com/reverseapplyselect.aspx" target="_blank" rel="nofollow">自助申请退换货</a></li>
+          <li><a name="foot_huikuandan" href="http://return.dangdang.com/reverseapplylist.aspx" target="_blank" rel="nofollow">退换货进度查询</a></li>
+          <li><a name="foot_tuiding" href="http://help.dangdang.com/details/page31" target="_blank" rel="nofollow">退款方式和时间</a></li>
+        </ul>
+      </div>
+                  <div class="footer_sort footer_shangjia"> <span class="f_title">商家服务</span>
+        <ul>
+          <li><a name="foot_zhaohuimima" href="http://shop.dangdang.com/shangjia" target="_blank" rel="nofollow">商家中心</a></li>
+          <li><a name="foot_huikuandan" href="http://outlets.dangdang.com/merchants_cooperation" target="_blank" rel="nofollow">运营服务</a></li>
+          <li><a name="foot_tuiding" href="http://outlets.dangdang.com/merchants_outlets" target="_blank" rel="nofollow">加入尾品汇</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer_nav_box">
+      <div class="footer_nav"><a href="http://static.dangdang.com/topic/2227/176801.shtml" target="_blank" rel="nofollow">公司简介</a><span class="sep">| </span><a href="http://ir.dangdang.com/" target="_blank">Investor Relations</a><span class="sep">|</span><a href="http://zhaopin.dangdang.com" target="_blank">诚聘英才</a><span class="sep">|</span><a href="http://union.dangdang.com/" target="_blank">网站联盟</a><span class="sep">|</span><a href="http://outlets.dangdang.com/merchants_open" target="_blank">当当招商</a><span class="sep">|</span><a href="http://misc.dangdang.com/groupbuy/Default.aspx" target="_blank" rel="nofollow">机构销售</a><span class="sep">|</span><a href="http://static.dangdang.com/topic/744/200778.shtml" target="_blank">手机当当</a><span class="sep">|</span><a href="http://blog.dangdang.com/" target="_blank">官方
+        Blog</a> <span class="sep">|</span>
+        <div class="footer_hot_search"><a href="http://www.dangdang.com/sales/brands/" target="_blank" class="footer_a" id="hot_search" onmouseover="showghotsearch('hot_search','hot_search_content')" onmouseout="hidehotsearch('hot_search','hot_search_content');">热词搜索</a>
+          <div class="pos_a_box" style="display: none;" id="hot_search_content" onmouseover="showghotsearch('hot_search','hot_search_content')" onmouseout="hidehotsearch('hot_search','hot_search_content');"> <a href="http://www.dangdang.com/sales/brands/a-1.html" target="_blank">A</a><a href="http://www.dangdang.com/sales/brands/b-1.html" target="_blank">B</a><a href="http://www.dangdang.com/sales/brands/c-1.html" target="_blank">C</a><a href="http://www.dangdang.com/sales/brands/d-1.html" target="_blank">D</a><a href="http://www.dangdang.com/sales/brands/e-1.html" target="_blank">E</a><a href="http://www.dangdang.com/sales/brands/f-1.html" target="_blank">F</a><a href="http://www.dangdang.com/sales/brands/g-1.html" target="_blank">G</a> <a href="http://www.dangdang.com/sales/brands/h-1.html" target="_blank">H</a><a href="http://www.dangdang.com/sales/brands/i-1.html" target="_blank">I</a><a href="http://www.dangdang.com/sales/brands/j-1.html" target="_blank">J</a><a href="http://www.dangdang.com/sales/brands/k-1.html" target="_blank">K</a><a href="http://www.dangdang.com/sales/brands/l-1.html" target="_blank">L</a><a href="http://www.dangdang.com/sales/brands/m-1.html" target="_blank">M</a><a href="http://www.dangdang.com/sales/brands/n-1.html" target="_blank">N</a> <a href="http://www.dangdang.com/sales/brands/o-1.html" target="_blank">O</a><a href="http://www.dangdang.com/sales/brands/p-1.html" target="_blank">P</a><a href="http://www.dangdang.com/sales/brands/q-1.html" target="_blank">Q</a><a href="http://www.dangdang.com/sales/brands/r-1.html" target="_blank">R</a><a href="http://www.dangdang.com/sales/brands/s-1.html" target="_blank">S</a><a href="http://www.dangdang.com/sales/brands/t-1.html" target="_blank">T</a><a href="http://www.dangdang.com/sales/brands/u-1.html" target="_blank">U</a> <a href="http://www.dangdang.com/sales/brands/v-1.html" target="_blank">V</a><a href="http://www.dangdang.com/sales/brands/w-1.html" target="_blank">W</a><a href="http://www.dangdang.com/sales/brands/x-1.html" target="_blank">X</a><a href="http://www.dangdang.com/sales/brands/y-1.html" target="_blank">Y</a><a href="http://www.dangdang.com/sales/brands/z-1.html" target="_blank">Z</a><a href="http://www.dangdang.com/sales/brands/other-1.html" target="_blank">0-9</a> <i></i></div>
+        </div>
+        <script>
+    var setTo = null;
+    function showghotsearch(){
+        clearTimeout(setTo);
+        document.getElementById("hot_search_content").style.display="block";
+    }
+    function hidehotsearch(){
+        setTo = setTimeout(function(){
+          document.getElementById("hot_search_content").style.display="none";
+        },100)                        
+    }
+</script> 
+      </div>
+  <div class="footer_copyright"><span>Copyright (C) 当当网 2004-2016, All Rights Reserved</span>
+      <a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202001051000098" target="_blank" class="footer_img" rel="nofollow"><img src="http://img60.ddimg.cn/upload_img/00459/index/validate.gif"></a><span><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">京ICP证041189号</a></span><span>出版物经营许可证 新出发京批字第直0673号</span></div>
+</div>
+  </div>
+</div>
+<script src="/static/js/pagetop2015_0827.js" charset="gb2312" type="text/javascript"></script>
+<script src="/static/js/slider.js"></script>
+<script type="text/javascript">
+$(function() {
+
+	var bannerSlider = new Slider($('#banner_tabs'), {
+		time: 5000,
+		delay: 400,
+		event: 'hover',
+		auto: true,
+		mode: 'fade',
+		controller: $('#bannerCtrl'),
+		activeControllerCls: 'active'
+	});
+	$('#banner_tabs .flex-prev').click(function() {
+		bannerSlider.prev()
+	});
+	$('#banner_tabs .flex-next').click(function() {
+		bannerSlider.next()
+	});
+})
+</script>
+{#控制输入页面号进行跳转的代码#}
+<script>
+     function click_get_page(){
+         va = document.getElementById('input_page_num').value;
+        {#va = $('#input_page_num').val();#}
+         if(va>0 && va<={{ books.paginator.num_pages }})
+         {location.href="{% url 'bookapp:booklist'%}?cato_one_id={{ cato_one_id }}&cato_two_id={{ cato_two_id }}&page_num="+va;
+         } else
+         {
+             {#$('#input_page_num').val('1')#}
+             document.getElementById('input_page_num').value = '1';
+         }
+    }
+</script>
+
+</body>
+</html>
