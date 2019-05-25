@@ -25,7 +25,6 @@
                 url:"{% url 'orderapp:remove_from_cart' %}",
                 data:"book_id="+book_id+"&state=1",
                 success:function (res) {
-                    {#var temp = ($("#total_cost1").text() - price).toFixed(1);#}
                     var temp = res['total_cost'];
                     {#更新总金额#}
                     $("#total_cost1").text(temp);
@@ -89,8 +88,14 @@
                     }
                     else{  alert('请确保输入的信息有效'); }
                 }else{
-                    location.href ="{% url 'orderapp:location_info' %}?delivery_id="+choice;
-                }   }
+                     if(parseFloat($("#total_cost1").text()))
+                     {
+                        location.href ="{% url 'orderapp:location_info' %}?delivery_id="+choice;
+                    } else{
+                        alert('您没有需要购买的商品！')
+                     }
+                }
+         }
 
             eval("(" + xhr.responseText + ")");
         function fill_form(delivery_id) {

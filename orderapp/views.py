@@ -82,8 +82,10 @@ def all_operation(request):
 
 def cart_page(request): #渲染购物车页面
     cart = request.session.get('cart')
-    # if cart:
-        # cart.update_cart() #更新购物车中的内容，确保所有商品的status为True
+    if cart: #默认购物车页面上的物品是全部选中的
+        for item in cart.cart_items.values():
+            item.status = True
+            cart.update_cost() # 更新购物车的总金额
     data = {
         #{}.values() -->dict([]) 但是 cart为空则点不出 cart_items
         'items':cart.cart_items.values() if cart else None,
