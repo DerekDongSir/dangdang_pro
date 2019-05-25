@@ -115,8 +115,8 @@ def registerlogic(request):
     repassword = request.POST.get('txt_repassword')
     if password == repassword: # 再确认从前端传递过来的密码是否一致
         salt,password = process_pwd(password) # 获得盐和加密后的密码
-        request.session['user_id'] = id #将用户的id存储进session,便于后续使用
-        request.session['username'] = name # 将用户昵称保存在 session中，表示用户已登录，同时便于取出显示在主页面
+        # request.session['user_id'] = id #将用户的id存储进session,便于后续使用
+        # request.session['username'] = name # 将用户昵称保存在 session中，表示用户已登录，同时便于取出显示在主页面
         user=TUser(id=id,email=email,password=password,nick_name=name,salt=salt)
         user.save()
         confirm_code = generate_confirmcode() #产生邮箱验证码

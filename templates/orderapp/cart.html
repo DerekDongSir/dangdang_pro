@@ -25,7 +25,7 @@
               $.ajax({
                     type:"GET",
                     url:"{% url 'orderapp:add_to_cart'%}",
-                    data:'book_id='+book_id+"&number="+book_num,
+                    data:'book_id='+book_id+"&book_num="+book_num,
                     success:function (res) {
                         $("#shop_total_price").text('￥'+res['total_cost']);
                         $("#payAmount").text('￥'+res['total_cost']);
@@ -121,11 +121,11 @@
             {
               if($("#button"+book_id).attr('title')==='1')
                 {
-                  var book_num = $("#book"+book_id).val();
-                  ajax_add_to_cart(book_id,book_num);
                  {#将内容从恢复区转移到罗列区#}
                  $('#item_table').append($('#tbody'+book_id));
                  $("#del_rev"+book_id).html("  <a onclick=\"remove_from_cart(this,"+book_id+")\" href=\"javascript:void(0)\" class=\"fn-remove-product\">删除</a>");
+                 var book_num = $("#book"+book_id).val();
+                  ajax_add_to_cart(book_id,book_num);
                 }
             }
         function settle_accounts() {

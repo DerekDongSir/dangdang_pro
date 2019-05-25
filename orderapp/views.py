@@ -120,7 +120,8 @@ def indent(request): #渲染订单确认页面，填写地址信息等
         'province': provinces,
         'locations':locations,
         'total_cost': ('%.1f' % cart.total_cost),
-        'items': cart.cart_items.values() if cart else None,
+        'items':[item for item in cart.cart_items.values() if item.status] if cart else None,
+        # 'items': cart.cart_items.values() if cart else None,
         'num_of_items': len(cart.cart_items) if cart else 0,  # len()可以直接获得字典中的项数
     }
     return render(request,'orderapp/indent.html',data)

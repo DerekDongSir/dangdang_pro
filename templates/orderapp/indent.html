@@ -23,9 +23,10 @@
             $.ajax({
                 type:"GET",
                 url:"{% url 'orderapp:remove_from_cart' %}",
-                data:"book_id="+book_id,
+                data:"book_id="+book_id+"&state=1",
                 success:function (res) {
-                    var temp = ($("#total_cost1").text() - price).toFixed(1);
+                    {#var temp = ($("#total_cost1").text() - price).toFixed(1);#}
+                    var temp = res['total_cost'];
                     {#更新总金额#}
                     $("#total_cost1").text(temp);
                     $("#total_cost2").text('￥'+temp);

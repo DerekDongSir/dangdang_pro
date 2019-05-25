@@ -16,7 +16,7 @@
         },1000);
         setTimeout(function () {
             clearInterval(myInterval);
-            location.href = "{% url 'userapp:login_jump' %}";
+            location.href = "{% url 'userapp:login' %}";
             },6000);
     </script>
 </head>
@@ -52,7 +52,8 @@
                             <ul><li class="first">邮箱</li>
                             <li class="last">{{ email }}</li>
                             </ul>
-                            <div class="zccg_btn"><a href="{% url 'bookapp:index' %}">立即购物</a>
+{#                            <div class="zccg_btn"><a href="{% url 'bookapp:index' %}">立即购物</a>#}
+                            <div class="zccg_btn"><a href="{% url 'userapp:login' %}">立即登录</a>
                                 <span><em id="em">6</em>秒后自动前往……</span>
                                 <span></span>
                                 <span>我们已向您的邮箱发送了激活链接，请尽快激活您的账户</span>
