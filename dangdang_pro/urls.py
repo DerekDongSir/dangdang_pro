@@ -22,6 +22,7 @@ urlpatterns = [
     path('bookapp/',include('bookapp.urls')),
     path('userapp/',include('userapp.urls')),
     path('orderapp/',include('orderapp.urls')),
+    path('manageapp/',include('manageapp.urls')),
     path('',index),
     path('json/',views.json_test_page), #从前端前后端传递json 格式数据
     # path('json/',views.json_dada),
