@@ -117,6 +117,11 @@
             $("#tr"+book_id).remove();
         });
         {#alert(id_list.join('/'))#}
+        $.ajax({
+            type:'get',
+            data:'ids='+id_list.join('/'),
+            url:"{% url 'manageapp:mass_delete' %}"
+        })
     }
 
     function b_delete(book_id){
@@ -137,6 +142,6 @@
     }
 
     function b_modify(book_id){
-
+        alert('此功能暂不实现');
     }
 </script>

@@ -47,8 +47,10 @@
 <script src="/static/jquery/jquery.1.8.3.min.js"></script>
 <script>
     function my_submit() {
-        if($("#parent_id").val() === 'parent'){
-         alert('请选择父类');
+        if(!$("#t_name").val()){   alert('请填写类别名！') }
+        else if(!$("#number").val()){   window.alert('请填写数量！')}
+        else if($("#parent_id").val() === 'parent'){
+         window.alert('请选择父类');
         }else {
             $("#my_form").submit();
         }

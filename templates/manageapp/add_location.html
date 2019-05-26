@@ -1,0 +1,94 @@
+<style>
+	.table1{
+		border-color: lightgray;
+	}
+	.td1,.td2{
+		height: 36px;
+	}
+	.td1{
+		text-align: right;
+		padding-right: 5px;
+		background-color: rgb(230,242,254);
+		font-size: 14px;
+	}
+	.td2{
+		padding-left: 5px;
+	}
+</style>
+<form id='my_form' action="{% url 'manageapp:add_location_logic' %}" method="get">
+<table class="table1" border="1" cellspacing="0" width="1110px">
+	<tr>
+		<td class="td1">地址id:</td>
+		<td class="td2"><input id="location_id"  name="location_id" type="text" /></td>
+	</tr>
+    <tr>
+		<td class="td1">用户名:</td>
+		<td class="td2"><input id="user_name"  name="user_name" type="text" /></td>
+	</tr>
+	<tr>
+		<td class="td1">收件人:</td>
+		<td class="td2"><input name='receiver' type="text"  id="receiver"/></td>
+	</tr>
+	<tr>
+		<td class="td1">手机号:</td>
+		<td class="td2"><input id='phone' type="text" name="phone" /></td>
+	</tr>
+
+	<tr>
+		<td class="td1">创建时间:</td>
+		<td class="td2">
+			<input type="date" id="crate_time" name="create_time"/>
+		</td>
+	</tr>
+    	<tr>
+		<td class="td1">发货时间:</td>
+		<td class="td2">
+			<input type="date" id="send_time" name="send_time"/>
+		</td>
+	</tr>
+    	<tr>
+		<td class="td1">收获时间:</td>
+		<td class="td2">
+			<input type="date" id="receive_time" name="receive_time"/>
+		</td>
+	</tr>
+
+    <tr>
+		<td class="t2" colspan="2" style="padding-left: 24%;" >
+			<input type="button" onclick="my_submit()" value="提交" />
+			<input type="button" onclick="my_reset()" value="重置"/>
+		</td>
+	</tr>
+</table>
+</form>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<script>
+    function my_reset() {
+        $("#location_id").val(null);
+        $("#user_name").val(null);
+        $("#receiver").val(null);
+        $("#phone").val(null);
+        $("#crate_time").val(null);
+        $("#send_time").val(null);
+        $("#receive_time").val(null);
+    }
+    function my_submit() {
+        if( !$("#location_id").val()){
+            window.alert('请填写地址id');
+        } else if(!$("#user_name").val()){
+            alert('请填写用户名！')
+        }else if(!$("#receiver").val()){
+            alert('请填写收货人姓名！')
+        }else if(!$("#phone").val()){
+            alert('请填写手机号')
+        }else if(!$("#crate_time").val()){
+            alert('请选择创建时间！')
+        }else if(! $("#send_time").val()){
+            alert('请选择发货日期！')
+        }else if(! $("#receive_time").val()){
+            alert('请选择收货日期！')
+        } else{
+            $("#my_form").submit()
+        }
+    }
+</script>

@@ -35,7 +35,15 @@
     function my_submit() {
         var name = $("#t_name").val();
         if(name){
-            location.href = "{% url 'manageapp:add_parent_type_logic' %}?type_name="+name;
+            $.ajax({
+               type:'get',
+               data:"type_name="+name,
+               url:"{% url 'manageapp:add_parent_type_logic' %}",
+              success:function (res) {
+                if(res ==='ok'){   window.alert('添加成功！') }
+                else{   window.alert("该类别已存在！")    }
+              }
+            });
         }else{
             alert('提交内容不能为空！')
         }
