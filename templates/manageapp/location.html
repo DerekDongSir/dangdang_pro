@@ -48,13 +48,13 @@
 	<span class="s1">订单管理</span>
 	<span class="s2">
 		<a href="{% url 'manageapp:add_location' %}">添加</a>
-		<a href="#">删除</a>
+		<a href="javascript:void(0)" onclick="mass_delete()">删除</a>
 	</span>
 </div>
 <table border="2" width="100%" cellspacing="0" class="t1">
 	<tr>
 		<td>
-			<input type="checkbox" />
+			<input type="checkbox" id="select_all" onclick="box_all()" />
 		</td>
 		<td>地址ID</td>
 		<td>用户名</td>
@@ -65,9 +65,9 @@
 		<td>手机号</td>
 	</tr>
     {% for create_time,location in location_dict.items %}
-        <tr>
+        <tr id="tr{{ location.id }}">
 		<td>
-			<input type="checkbox" />
+			<input type="checkbox" name='box' value="{{ location.id }}"/>
 		</td>
 		<td>{{ location.id }}</td>
 		<td>{{ location.user.nick_name }}</td>
@@ -95,3 +95,21 @@
         {% endif %}
 	</span>
 </div>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<script>
+    function mass_delete() {
+        var l_list =[];
+        $("input[name='box']:checked").each(function () {
+            var l_id = $(this).val();
+            l_list.push(l_id);
+            $("#tr"+l_id).remove();
+        });
+    }
+    function box_all() {
+        if($("#select_all").attr('checked')){
+            $("input[name='box']").attr('checked','true');
+        }else{
+            $("input[name='box']").removeAttr('checked');
+        }
+    }
+</script>

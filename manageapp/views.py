@@ -1,7 +1,9 @@
+import uuid
+
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render,redirect,HttpResponse
-from bookapp.models import BookInfo,TDelivery,TCatogray
+from bookapp.models import BookInfo,TDelivery,TCatogray,TOrder
 # Create your views here.
 
 def index(request):
@@ -9,11 +11,14 @@ def index(request):
 
 
 def booklist(request):
-    page_num = int(request.GET.get('page_num',1))
+    all_books = BookInfo.objects.all()
+    book_id = request.GET.get('book_id') # 从 book_id页面通过点击 更多 进入此页面
+    if book_id:
+        all_books = BookInfo.objects.filter(id=book_id) # 此时，仅显示被选中的书籍
+    page_num = int(request.GET.get('page_num',1)) #在booklist页面内进行跳转
     """
     :return: 将联合查询的书籍的种类名作为键，书籍作为值，构成字典传递到前端
     """
-    all_books = BookInfo.objects.all()
     # books ={book.catogray.catogry_name:book for book in BookInfo.objects.all()}
     paginator = Paginator(all_books,per_page=20)
     page = paginator.page(page_num)
@@ -26,19 +31,23 @@ def delete_book(request):
     # book.delete()
     return HttpResponse('ok')
 
+def mass_delete(request):
+    '''接收前端传递的拼接后的id字符串，进行拆分，取出单个id'''
+    ids = request.GET.get('ids')
+    id_ls =ids.split('/') #获得书籍的id列表
+    return HttpResponse('ok')
+
 
 def add_parent_type(request):
     return render(request,'manageapp/add_parent_type.html')
 
 
 def add_parent_type_logic(request):
-    '''
-    :param request:接收到的父类名称
-    :return:
-    '''
+    '''接收到的父类名称,查询数据库该名称是否已经存在，不存在则添加'''
     type_name = request.GET.get('type_name') # 将父类名称添加入类别库中
-    # print(type_name)
-
+    if TCatogray.objects.filter(catogry_name=type_name):
+        return HttpResponse('failed')
+    #由于建表时采用integer作为primary key数据类型，因而此时不能使用 uuid 来生成 id
     return HttpResponse('ok')
 
 
@@ -53,9 +62,10 @@ def add_book_type(request):
 def add_book_type_logic(request):
     type_name = request.GET.get('t_name')
     num = request.GET.get('number')
-    parent_id = request.GET.get('parent')
-    # print(type_name,num,parent_id)
-    return HttpResponse('添加成功！')
+    parent_id = int(request.GET.get('parent'))
+    if TCatogray.objects.filter(parent_id=parent_id,catogry_name=type_name):
+        return HttpResponse('failed')
+    return HttpResponse('ok')
 
 
 def book_id(request):
@@ -95,3 +105,15 @@ def location(request):
     return render(request,'manageapp/location.html',{'page':page,'location_dict':location_dict})
 
 
+def add_location(request):
+    return  render(request,'manageapp/add_location.html')
+
+def add_location_logic(request):
+    location_id = request.GET.get("location_id")
+    user_name = request.GET.get("user_name")
+    receiver = request.GET.get("receiver")
+    phone = request.GET.get("phone")
+    crate_time = request.GET.get("crate_time")
+    send_time = request.GET.get("send_time")
+    receive_time = request.GET.get("receive_time")
+    return HttpResponse('ok')
