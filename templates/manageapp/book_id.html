@@ -1,0 +1,82 @@
+<style>
+	.d1{
+		background-color: rgb(53,60,68);
+		position: relative;
+		height: 30px;
+		line-height: 30px;
+		padding-left: 10px;
+	}
+	.s1{
+		font-size: 12px;
+		color: white;
+	}
+	.s2{
+		position: absolute;
+		right: 10px;
+	}
+	.s2 a{
+		color: white;
+		font-size: 12px;
+		text-decoration: none;
+	}
+	.t1{
+		border-color:aliceblue;
+		margin-top: 2px;
+		font-size: 12px;
+		text-align: center;
+		background-color: rgb(230,242,254);
+	}
+	.bottom{
+		font-size: 13px;
+		padding-left: 15px;
+		position: relative;
+	}
+	.bs{
+		position: absolute;
+		right: 40px;
+	}
+	.bs a{
+		text-decoration: none;
+		color: black;
+	}
+	.bs a:hover{
+		color: cornflowerblue;
+		text-decoration: underline;
+	}
+</style>
+<div class="d1">
+	<span class="s1">商品管理</span>
+	<span class="s2">
+		<a href="#">添加</a>
+		<a href="#">删除</a>
+	</span>
+</div>
+<table border="2" width="100%" cellspacing="0" class="t1">
+	<tr>
+		<td>商品ID</td>
+		<td>商品名称</td>
+		<td>更多</td>
+	</tr>
+    {% for book in page %}
+     <tr>
+		<td>{{ book.id }}</td>
+		<td>{{ book.book_name }}</td>
+		<td><a href="#">更多</a></td>
+	</tr>
+    {% endfor %}
+</table>
+<div class="bottom">
+	共有 {{ page.paginator.count }}条记录，当前第{{ page.number }} 页，共{{ page.paginator.num_pages }} 页
+	<span class="bs">
+        {% if page.has_previous %}
+            <a href="{% url 'manageapp:book_id' %}?page_num={{ page.previous_page_number }}" style="margin-right: 20px;">上一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">上一页</a>
+        {% endif %}
+        {% if page.has_next %}
+            <a href="{% url 'manageapp:book_id' %}?page_num={{ page.next_page_number }}" style="margin-right: 20px;">下一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">下一页</a>
+        {% endif %}
+	</span>
+</div>

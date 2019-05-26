@@ -1,0 +1,61 @@
+<style>
+	.table1{
+		border-color:rgba(180,207,207,0.4);
+	}
+	.td1,.td2{
+		height: 36px;
+	}
+	.td1{
+		text-align: right;
+		padding-right: 5px;
+		background-color: rgb(230,242,254);
+		font-size: 14px;
+	}
+	.td2{
+		padding-left: 5px;
+	}	
+</style>
+<form id='my_form' action="{% url 'manageapp:add_book_type_logic' %}" method="get">
+<table class="table1" border="1" cellspacing="0" width="1110px">
+	<tr>
+		<td class="td1">子类名称:</td>
+		<td class="td2"><input id='t_name' name='t_name' type="text" /></td>
+	</tr>
+	<tr>
+		<td class="td1">子类数量:</td>
+		<td class="td2"><input id='number' name="number" type="text" /></td>
+	</tr>
+	<tr>
+		<td class="td1">父类名称:</td>
+		<td class="td2">
+			<select id="parent_id" name="parent">
+				<option value="parent">父类名</option>
+                {% for catogray in parents %}
+                    <option value="{{ catogray.id }}">{{ catogray.catogry_name }}</option>
+                {% endfor %}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="padding-left: 24%;" colspan="2">
+			<input type="button" onclick="my_submit()" value="提交" />
+			<input type="button" onclick="my_reset()" value="重置"/>
+		</td>
+	</tr>
+</table>
+</form>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<script>
+    function my_submit() {
+        if($("#parent_id").val() === 'parent'){
+         alert('请选择父类');
+        }else {
+            $("#my_form").submit();
+        }
+    }
+    function my_reset() {
+        $("#t_name").val(null);
+        $("#number").val(null);
+        $("#parent_id").val("父类名");
+    }
+</script>

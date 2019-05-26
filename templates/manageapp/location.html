@@ -1,0 +1,97 @@
+<style>
+	.d1{
+		background-color: rgb(53,60,68);
+		position: relative;
+		height: 30px;
+		line-height: 30px;
+		padding-left: 10px;
+	}
+	.s1{
+		font-size: 12px;
+		color: white;
+	}
+	.s2{
+		position: absolute;
+		right: 10px;
+	}
+	.s2 a{
+		color: white;
+		font-size: 12px;
+		text-decoration: none;
+	}
+	.t1{
+		border-color:aliceblue;
+		margin-top: 2px;
+		font-size: 12px;
+		text-align: center;
+		background-color: rgb(230,242,254);
+	}
+	.bottom{
+		font-size: 13px;
+		padding-left: 15px;
+		position: relative;
+	}
+	.bs{
+		position: absolute;
+		right: 40px;
+	}
+	.bs a{
+		text-decoration: none;
+		color: black;
+	}
+	.bs a:hover{
+		color: cornflowerblue;
+		text-decoration: underline;
+	}
+</style>
+<div class="d1">
+	<span class="s1">订单管理</span>
+	<span class="s2">
+		<a href="#">添加</a>
+		<a href="#">删除</a>
+	</span>
+</div>
+<table border="2" width="100%" cellspacing="0" class="t1">
+	<tr>
+		<td>
+			<input type="checkbox" />
+		</td>
+		<td>地址ID</td>
+		<td>用户名</td>
+		<td>创建时间</td>
+		<td>发货时间</td>
+		<td>收货时间</td>
+		<td>收件人</td>
+		<td>手机号</td>
+	</tr>
+    {% for create_time,location in location_dict.items %}
+        <tr>
+		<td>
+			<input type="checkbox" />
+		</td>
+		<td>{{ location.id }}</td>
+		<td>{{ location.user.nick_name }}</td>
+		<td>{{ create_time |date:'Y/m/d H:i:s'}}</td>
+		<td>{{create_time |date:'Y/m/d H:i:s'  }}</td>
+		<td>unknown</td>
+		<td>{{ location.receiver_name }}</td>
+		<td>{{ location.phone }}</td>
+	</tr>
+    {% endfor %}
+
+</table>
+<div class="bottom">
+	共有 {{ page.paginator.count }}条记录，当前第{{ page.number }} 页，共{{ page.paginator.num_pages }} 页
+	<span class="bs">
+		 {% if page.has_previous %}
+            <a href="{% url 'manageapp:location' %}?page_num={{ page.previous_page_number }}" style="margin-right: 20px;">上一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">上一页</a>
+        {% endif %}
+        {% if page.has_next %}
+            <a href="{% url 'manageapp:location' %}?page_num={{ page.next_page_number }}" style="margin-right: 20px;">下一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">下一页</a>
+        {% endif %}
+	</span>
+</div>

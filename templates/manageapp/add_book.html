@@ -1,0 +1,81 @@
+<style>
+	.table1{
+		border-color: lightgray;
+	}
+	.td1,.td2{
+		height: 36px;
+	}
+	.td1{
+		text-align: right;
+		padding-right: 5px;
+		background-color: rgb(230,242,254);
+		font-size: 14px;
+	}
+	.td2{
+		padding-left: 5px;
+	}
+</style>
+<form id='my_form' action="{% url 'manageapp:add_book_logic' %}" method="get">
+<table class="table1" border="1" cellspacing="0" width="1110px">
+	<tr>
+		<td class="td1">商品名称:</td>
+		<td class="td2"><input id="book_name"  name="book_name" type="text" /></td>
+	</tr>
+	<tr>
+		<td class="td1">作者:</td>
+		<td class="td2"><input name='author' type="text"  id="author"/></td>
+	</tr>
+	<tr>
+		<td class="td1">出版社:</td>
+		<td class="td2"><input id='press' type="text" name="press" /></td>
+	</tr>
+	<tr>
+		<td class="td1">商品类别:</td>
+		<td class="td2">
+			<select id="catogray_id" name="catogray_id">
+				<option value='type'>商品类别</option>
+                {% for type in catogray %}
+                    <option value="{{ type.id }}">{{ type.catogry_name }}</option>
+                {% endfor %}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td class="td1">出版日期:</td>
+		<td class="td2">
+			<input type="date" id="publish_time" name="publish_time"/>
+		</td>
+	</tr>
+    <tr>
+		<td class="t2" colspan="2" style="padding-left: 24%;" >
+			<input type="button" onclick="my_submit()" value="提交" />
+			<input type="button" onclick="my_reset()" value="重置"/>
+		</td>
+	</tr>
+</table>
+</form>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<script>
+    function my_reset() {
+        $("#book_name").val(null);
+        $("#author").val(null);
+        $("#press").val(null);
+        $("#publish_time").val(null);
+        $("#catogray_id").val(null);
+    }
+    function my_submit() {
+        if(!$("#book_name").val()){
+            alert('请填写书名！')
+        }else if(!$("#catogray_id").val()){
+            alert('请选择类别！')
+        }else if(!$("#author").val()){
+            alert('请填写作者')
+        }else if(!$("#press").val()){
+            alert('请填写出版社！')
+        }else if(! $("#publish_time").val()){
+            alert('请选择出版日期！')
+        }else{
+            $("#my_form").submit()
+        }
+    }
+</script>

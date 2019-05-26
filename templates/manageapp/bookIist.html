@@ -1,0 +1,142 @@
+<style>
+	.d1{
+		background-color: rgb(53,60,68);
+		position: relative;
+		height: 30px;
+		line-height: 30px;
+		padding-left: 10px;
+	}
+	.s1{
+		font-size: 12px;
+		color: white;
+	}
+	.s2{
+		position: absolute;
+		right: 10px;
+	}
+	.s2 a{
+		color: white;
+		font-size: 12px;
+		text-decoration: none;
+	}
+	.t1{
+		border-color:aliceblue;
+		margin-top: 2px;
+		font-size: 12px;
+		text-align: center;
+		background-color: rgb(230,242,254);
+	}
+	.bottom{
+		font-size: 13px;
+		padding-left: 15px;
+		position: relative;
+	}
+	.bs{
+		position: absolute;
+		right: 40px;
+	}
+	.bs a{
+		text-decoration: none;
+		color: black;
+	}
+	.bs a:hover{
+		color: cornflowerblue;
+		text-decoration: underline;
+	}
+</style>
+<div class="d1">
+	<span class="s1">管理人员基本信息表</span>
+	<span class="s2">
+		<a href="{% url 'manageapp:add_book' %}">添加</a>
+		<a href="javascript:void(0)" onclick="mass_delete()">删除</a>
+	</span>
+</div>
+<table border="2" width="100%" cellspacing="0" class="t1" id="b_table">
+	<tr>
+		<td><input type="checkbox" onclick="choose_all(this)"/></td>
+		<td>商品ID</td>
+		<td>商品名称</td>
+		<td>作者</td>
+		<td>出版社</td>
+		<td>市场价</td>
+		<td>当当价</td>
+		<td>库存</td>
+		<td>商品种类</td>
+		<td>基本操作</td>
+	</tr>
+    {% for catogray,book in book_dic.items %}
+        <tr id="tr{{ book.id }}">
+        <td><input id="box{{ book.id }}" type="checkbox" name="checkbox" value="{{ book.id }}"/></td>
+		<td>{{ book.id }}</td>
+		<td>{{ book.book_name }}</td>
+		<td>{{ book.author }}</td>
+		<td>{{ book.press }}</td>
+		<td>{{ book.marketing_price }}</td>
+		<td>{{ book.dangdang_price }}</td>
+		<td>{{ book.stock }}</td>
+		<td>{{ catogray }}</td>
+		<td>
+            <a href="javascript:void(0)" onclick="b_delete({{ book.id }})">删除</a>
+		    <a href="javascript:void(0)" onclick="b_modify({{ book.id }})">修改</a>
+        </td>
+	</tr>
+    {% endfor %}
+
+</table>
+<div class="bottom">
+	共有 {{  page.paginator.count}}条记录，当前第{{ page.number }} 页，共{{ page.paginator.num_pages }} 页
+	<span class="bs">
+        {% if page.has_previous %}
+            <a href="{% url 'manageapp:booklist' %}?page_num={{ page.previous_page_number }}" style="margin-right: 20px;">上一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">上一页</a>
+        {% endif %}
+        {% if page.has_next %}
+            <a href="{% url 'manageapp:booklist' %}?page_num={{ page.next_page_number }}" style="margin-right: 20px;">下一页</a>
+        {% else %}
+            <a href="javascript:void(0)" style="margin-right: 20px;">下一页</a>
+        {% endif %}
+	</span>
+</div>
+<script src="/static/jquery/jquery.1.8.3.min.js"></script>
+<script>
+    function choose_all(self) {
+        var value = $(self).attr('checked');
+        if(value ==='checked'){
+            $("input[name='checkbox']").attr("checked",'true');
+        }else{
+             $("input[name='checkbox']").removeAttr('checked');
+        }
+    }
+    function mass_delete() {
+        alert('您确定要删除所有选中书籍吗？');
+        var id_list =[];
+        $("input[name='checkbox']:checkbox:checked").each(function(){
+            var book_id = $(this).val();
+            id_list.push(book_id);
+            $("#tr"+book_id).remove();
+        });
+        {#alert(id_list.join('/'))#}
+    }
+
+    function b_delete(book_id){
+        var box = $("#box"+book_id).attr('checked');
+        if(box ==='checked'){
+            alert("确定要删除选中的书籍吗？");
+            $.ajax({
+                type:'get',
+                data:'book_id='+book_id,
+                url:"{% url 'manageapp:delete_book' %}",
+                success:function (res) {
+                      {#移除自身#}
+                        $("#tr"+book_id).remove();
+                        alert('书籍成功删除');
+                }
+            })
+        }else{  alert("请先选中书籍！")}
+    }
+
+    function b_modify(book_id){
+
+    }
+</script>
