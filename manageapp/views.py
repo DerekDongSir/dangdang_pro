@@ -3,6 +3,9 @@ import uuid
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render,redirect,HttpResponse
+from pyecharts.charts import Pie,Page
+from pyecharts import options as opts
+
 from bookapp.models import BookInfo,TDelivery,TCatogray,TOrder
 # Create your views here.
 
@@ -117,3 +120,22 @@ def add_location_logic(request):
     send_time = request.GET.get("send_time")
     receive_time = request.GET.get("receive_time")
     return HttpResponse('ok')
+
+
+def catogray_num_pie(request):
+    '''
+     #catogray 是一个一级类的字典，键为 类id，每个键对应的值为一个列表
+            #列表第一项为该类下共有多少本图书，第二项为类名,第三项为该类对应的二级类字典
+            #二级类字典 键为 类id，值为列表，列表第一项为该二级类下的书的数量，第二项为类名
+    '''
+    catogray = request.session.get('catogray')
+    def pie_base() -> Pie:
+        c = (
+            Pie()
+                .add("", [[item[1],item[0]] for item in catogray.values()])
+                .set_global_opts(title_opts=opts.TitleOpts(title="图书类别统计"))
+                .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {c}"))
+        )
+        return c
+    c = pie_base()
+    return HttpResponse(c.render_embed()) # 将一级类图书类别和数量以大饼图的形式内嵌在网页中

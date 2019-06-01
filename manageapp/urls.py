@@ -16,4 +16,5 @@ urlpatterns = [
     path('location/',views.location,name='location'),
     path('add_location/',views.add_location,name='add_location'),
     path('add_location_logic/',views.add_location_logic,name='add_location_logic'),
+    path('catogray_num-pie/',views.catogray_num_pie,name='catogray_num_pie'),# 图书数量大饼图
 ]

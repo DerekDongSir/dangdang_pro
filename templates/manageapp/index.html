@@ -46,7 +46,8 @@
               text:'商品管理',
               items:[
                 {id:'code',text:'增加商品',href:'{% url 'manageapp:add_book' %}',closeable : false},
-                {id:'main-menu',text:'商品列表',href:'{% url 'manageapp:booklist' %}'}
+                {id:'main-menu',text:'商品列表',href:'{% url 'manageapp:booklist' %}'},
+                {id:'quick',text:'商品数量统计',href:'{% url 'manageapp:catogray_num_pie' %}'},
               ]
             },{
               text:'商品类别管理',
