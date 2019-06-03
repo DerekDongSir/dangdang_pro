@@ -79,10 +79,10 @@ def book_id(request):
 
 
 def add_book(request):
-    catogray = request.session.get('catogray')
+    catogray = request.session.get('sub_catogray')
     if not catogray:
         catogray = TCatogray.objects.filter(parent_id__isnull=False)#筛选出所有的二级类
-        request.session['catogray'] = catogray
+        request.session['sub_catogray'] = catogray
     return render(request,'manageapp/add_book.html',{'catogray':catogray})
 
 
